@@ -8,7 +8,8 @@
     "copy-deps": "cp -r ../../node_modules ./dist/",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
-    "invoke": "sam local invoke WeatherExtractorFunction -e events/lambda-input.json"
+    "invoke": "sam local invoke WeatherExtractorFunction -e events/lambda-input.json",
+    "verify": "ts-node src/scripts/verifyData.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",

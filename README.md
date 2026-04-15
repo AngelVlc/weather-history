@@ -97,12 +97,11 @@ DYNAMODB_ENDPOINT=http://host.docker.internal:8000 yarn invoke:local
 After invoking the Lambda, verify data was saved correctly:
 
 ```bash
-AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy aws dynamodb scan \
-  --endpoint-url http://localhost:8000 \
-  --region us-east-1 \
-  --table-name weather-data \
-  --select SPECIFIC_ATTRIBUTES \
-  --projection-expression "pk,sk,stationName,tempMin,tempMax,tempAvg,precipitation"
+cd packages/lambda-weather-extractor && \
+  DYNAMODB_ENDPOINT=http://localhost:8000 \
+  DYNAMODB_TABLE_NAME=weather-data \
+  AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+  yarn verify
 ```
 
 ### Stop DynamoDB Local
