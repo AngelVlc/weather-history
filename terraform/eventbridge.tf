@@ -19,6 +19,7 @@ resource "aws_cloudwatch_event_target" "lambda_target" {
   input = jsonencode({
     territory     = each.value.id
     territoryName = each.value.name
+    location      = each.value.location
   })
 }
 

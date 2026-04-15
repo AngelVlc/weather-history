@@ -6,12 +6,12 @@ import { saveWeatherRecords } from './dynamodb/client';
 export const handler = async (event: EventBridgeEvent): Promise<void> => {
   console.log('Event received:', JSON.stringify(event));
 
-  const { territory, territoryName } = event;
+  const { territory, territoryName, location } = event;
   const date = getYesterdayDate();
   const pk = `${territory}#${date}`;
 
   console.log(
-    `Processing territory: ${territory} (${territoryName}) for date: ${date}`
+    `Processing territory: ${territory} (${territoryName}) for location: ${location}, date: ${date}`
   );
 
   const html = await fetchWeatherPage(territory, date);
@@ -25,6 +25,7 @@ export const handler = async (event: EventBridgeEvent): Promise<void> => {
     sk: station.stationId,
     territory,
     territoryName,
+    location,
     date,
     stationId: station.stationId,
     stationName: station.stationName,

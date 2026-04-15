@@ -6,7 +6,7 @@
 - [x] samconfig.toml para SAM CLI
 
 ## Phase 2: Configuration
-- [x] `config/territories.yaml` (c20 - Sumacarcer)
+- [x] `config/territories.yaml` (c20 - Ribera Alta - Sumacarcer)
 - [x] Tipos TypeScript compartidos
 
 ## Phase 3: Lambda (`packages/lambda-weather-extractor`)
@@ -14,7 +14,7 @@
 - [x] HTML parser (cheerio)
 - [x] Extracción de datos por estación
 - [x] Cliente DynamoDB (@aws-sdk/client-dynamodb)
-- [x] Handler: recibe `{ territory, territoryName }` → calcula yesterday → GET → parse → save
+- [x] Handler: recibe `{ territory, territoryName, location }` → calcula yesterday → GET → parse → save
 - [x] Unit tests (Jest) - 5 passing
 - [x] Template SAM (`template.yaml`)
 

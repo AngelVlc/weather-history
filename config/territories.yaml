@@ -1,5 +1,6 @@
 territories:
   - id: c20
-    name: Sumacarcer
+    name: Ribera Alta
+    location: Sumacarcer
     cronHour: 4
     timezone: Europe/Madrid

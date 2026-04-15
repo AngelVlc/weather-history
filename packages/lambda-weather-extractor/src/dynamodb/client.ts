@@ -20,6 +20,7 @@ export async function saveWeatherRecord(record: WeatherRecord): Promise<void> {
       sk: { S: record.sk },
       territory: { S: record.territory },
       territoryName: { S: record.territoryName },
+      location: { S: record.location },
       date: { S: record.date },
       stationId: { S: record.stationId },
       stationName: { S: record.stationName },

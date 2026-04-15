@@ -1,6 +1,7 @@
 export interface Territory {
   id: string;
   name: string;
+  location: string;
   cronHour: number;
   timezone: string;
 }
@@ -14,6 +15,7 @@ export interface WeatherRecord {
   sk: string;
   territory: string;
   territoryName: string;
+  location: string;
   date: string;
   stationId: string;
   stationName: string;
@@ -35,4 +37,5 @@ export interface StationData {
 export interface EventBridgeEvent {
   territory: string;
   territoryName: string;
+  location: string;
 }
