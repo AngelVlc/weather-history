@@ -4,6 +4,7 @@ export interface Territory {
   location: string;
   cronHour: number;
   timezone: string;
+  stationIds: string[];
 }
 
 export interface TerritoryConfig {
@@ -38,4 +39,5 @@ export interface EventBridgeEvent {
   territory: string;
   territoryName: string;
   location: string;
+  stationIds: string[];
 }

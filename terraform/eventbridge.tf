@@ -20,6 +20,7 @@ resource "aws_cloudwatch_event_target" "lambda_target" {
     territory     = each.value.id
     territoryName = each.value.name
     location      = each.value.location
+    stationIds    = each.value.stationIds
   })
 }
 

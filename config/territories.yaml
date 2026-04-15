@@ -4,3 +4,7 @@ territories:
     location: Sumacarcer
     cronHour: 4
     timezone: Europe/Madrid
+    stationIds:
+      - c20m236e01
+      - c20m236e02
+      - c20m236e03

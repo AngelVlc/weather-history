@@ -6,21 +6,27 @@ import { saveWeatherRecords } from './dynamodb/client';
 export const handler = async (event: EventBridgeEvent): Promise<void> => {
   console.log('Event received:', JSON.stringify(event));
 
-  const { territory, territoryName, location } = event;
+  const { territory, territoryName, location, stationIds } = event;
   const date = getYesterdayDate();
   const pk = `${territory}#${date}`;
 
   console.log(
     `Processing territory: ${territory} (${territoryName}) for location: ${location}, date: ${date}`
   );
+  console.log(`Filtering for stations: ${stationIds.join(', ')}`);
 
   const html = await fetchWeatherPage(territory, date);
   console.log(`Fetched HTML, length: ${html.length} characters`);
 
-  const stationData = parseWeatherTable(html, territory, date);
-  console.log(`Parsed ${stationData.length} stations`);
+  const allStationData = parseWeatherTable(html, territory, date);
+  console.log(`Parsed ${allStationData.length} stations total`);
 
-  const records: WeatherRecord[] = stationData.map((station) => ({
+  const filteredStationData = allStationData.filter((station) =>
+    stationIds.includes(station.stationId)
+  );
+  console.log(`Filtered to ${filteredStationData.length} matching stations`);
+
+  const records: WeatherRecord[] = filteredStationData.map((station) => ({
     pk,
     sk: station.stationId,
     territory,

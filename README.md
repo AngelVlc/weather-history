@@ -160,7 +160,17 @@ territories:
     location: Sumacarcer
     cronHour: 4
     timezone: Europe/Madrid
+    stationIds:
+      - c20m236e01
+      - c20m236e02
+      - c20m236e03
 ```
+
+- `id`: Territory code (used for API request)
+- `name`: Territory name
+- `location`: Locality of interest
+- `cronHour`: Hour to trigger Lambda (UTC)
+- `stationIds`: List of station IDs to save (from avamet.org)
 
 ## Data Model
 

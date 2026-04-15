@@ -14,7 +14,7 @@
 - [x] HTML parser (cheerio)
 - [x] Extracción de datos por estación
 - [x] Cliente DynamoDB (@aws-sdk/client-dynamodb)
-- [x] Handler: recibe `{ territory, territoryName, location }` → calcula yesterday → GET → parse → save
+- [x] Handler: recibe `{ territory, territoryName, location, stationIds }` → filtra → calcula yesterday → GET → parse → save
 - [x] Unit tests (Jest) - 5 passing
 - [x] Template SAM (`template.yaml`)
 

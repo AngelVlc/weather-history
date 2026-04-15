@@ -1,5 +1,6 @@
 {
   "territory": "c20",
   "territoryName": "Ribera Alta",
-  "location": "Sumacarcer"
+  "location": "Sumacarcer",
+  "stationIds": ["c20m236e01", "c20m236e02", "c20m236e03"]
 }
