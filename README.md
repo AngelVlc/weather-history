@@ -92,6 +92,19 @@ Or use the npm script (after updating DYNAMODB_ENDPOINT in samconfig.toml):
 DYNAMODB_ENDPOINT=http://host.docker.internal:8000 yarn invoke:local
 ```
 
+### Verify Data
+
+After invoking the Lambda, verify data was saved correctly:
+
+```bash
+AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy aws dynamodb scan \
+  --endpoint-url http://localhost:8000 \
+  --region us-east-1 \
+  --table-name weather-data \
+  --select SPECIFIC_ATTRIBUTES \
+  --projection-expression "pk,sk,stationName,tempMin,tempMax,tempAvg,precipitation"
+```
+
 ### Stop DynamoDB Local
 
 ```bash
