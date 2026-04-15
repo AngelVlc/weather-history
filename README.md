@@ -92,11 +92,10 @@ cd packages/lambda-weather-extractor && \
 After invoking the Lambda, verify data was saved correctly:
 
 ```bash
-cd packages/lambda-weather-extractor && \
-  DYNAMODB_ENDPOINT=http://localhost:8000 \
+DYNAMODB_ENDPOINT=http://localhost:8000 \
   DYNAMODB_TABLE_NAME=weather-data \
   AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
-  yarn verify
+  yarn dev:verify
 ```
 
 **Note:** `host.docker.internal` is used for invoke (Lambda runs in Docker), and `localhost` for verify (script runs on host).
