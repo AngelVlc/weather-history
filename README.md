@@ -105,6 +105,8 @@ cd packages/lambda-weather-extractor && \
 
 ```bash
 yarn dev:down
+# or
+yarn dev:stop
 ```
 
 ## Deployment

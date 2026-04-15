@@ -11,6 +11,7 @@
     "lint": "yarn workspace @weather-history/lambda-weather-extractor lint",
     "dev:up": "docker compose up -d",
     "dev:down": "docker compose down",
+    "dev:stop": "docker compose down",
     "dev:setup": "./scripts/dev-setup.sh",
     "invoke:local": "yarn workspace @weather-history/lambda-weather-extractor invoke"
   },
