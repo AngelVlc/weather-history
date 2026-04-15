@@ -1,0 +1,5 @@
+territories:
+  - id: c20
+    name: Sumacarcer
+    cronHour: 4
+    timezone: Europe/Madrid

@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs20.x
+
+Resources:
+  WeatherExtractorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/handler.handler
+      MemorySize: 128
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref WeatherDataTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref WeatherDataTable
+    Events:
+      EventBridgeTrigger:
+        Type: EventBridgeRule
+        Properties:
+          EventBusName: default
+          Pattern:
+            source:
+              - "aws.events"
+
+  WeatherDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: weather-data
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+Outputs:
+  WeatherExtractorFunction:
+    Description: Weather Extractor Lambda Function ARN
+    Value: !GetAtt WeatherExtractorFunction.Arn
+  WeatherDataTableName:
+    Description: Weather Data DynamoDB Table Name
+    Value: !Ref WeatherDataTable

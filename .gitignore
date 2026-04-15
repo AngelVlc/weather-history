@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.yarn/
+
+# Build outputs
+dist/
+*.zip
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# SAM CLI
+.sam/

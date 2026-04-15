@@ -1,0 +1,84 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.2.0
+  aws-cli: circleci/aws-cli@4.1.1
+  terraform: circleci/terraform@1.0.2
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:20
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          name: Run tests
+          command: yarn test
+      - run:
+          name: Build
+          command: yarn build
+
+  deploy-lambda:
+    docker:
+      - image: cimg/node:20
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          name: Build Lambda package
+          command: |
+            yarn build
+            cd packages/lambda-weather-extractor
+            zip -r dist.zip dist/
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: us-east-1
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - run:
+          name: Upload to S3
+          command: |
+            aws s3 cp packages/lambda-weather-extractor/dist.zip s3://weather-history-lambda/lambda.zip
+
+  deploy-terraform:
+    docker:
+      - image: cimg/node:20
+    steps:
+      - checkout
+      - terraform/install:
+          version: 1.6.0
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: us-east-1
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - terraform/init:
+          backend_config:
+            bucket: weather-history-terraform-state
+            key: weather-history/terraform.tfstate
+            region: us-east-1
+      - terraform/plan:
+          var_file: terraform.tfvars
+      - terraform/apply:
+          var_file: terraform.tfvars
+
+workflows:
+  weather-history:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: main
+      - deploy-lambda:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
+      - deploy-terraform:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
