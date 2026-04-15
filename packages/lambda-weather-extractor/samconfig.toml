@@ -3,3 +3,19 @@
 [default.build]
 [default.validate]
 [default.local]
+[default.local_invoke]
+parameter_overrides = "DynamoDBTableName=weather-data DynamoDBEndpoint="
+
+[default.local_invoke.docker_network]
+name = "weather-history_weather-history-network"
+
+[dev]
+[dev.deploy]
+[dev.build]
+[dev.validate]
+[dev.local]
+[dev.local_invoke]
+parameter_overrides = "DynamoDBTableName=weather-data DynamoDBEndpoint="
+
+[dev.local_invoke.docker_network]
+name = "weather-history_weather-history-network"

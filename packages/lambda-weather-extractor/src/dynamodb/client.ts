@@ -4,7 +4,12 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { WeatherRecord } from '../types';
 
-const client = new DynamoDBClient({});
+const clientConfig: { endpoint?: string } = {};
+if (process.env.DYNAMODB_ENDPOINT) {
+  clientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+}
+
+const client = new DynamoDBClient(clientConfig);
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'weather-data';
 
 export async function saveWeatherRecord(record: WeatherRecord): Promise<void> {

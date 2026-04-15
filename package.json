@@ -8,7 +8,11 @@
   "scripts": {
     "test": "yarn workspace @weather-history/lambda-weather-extractor test",
     "build": "yarn workspace @weather-history/lambda-weather-extractor build",
-    "lint": "yarn workspace @weather-history/lambda-weather-extractor lint"
+    "lint": "yarn workspace @weather-history/lambda-weather-extractor lint",
+    "dev:up": "docker compose up -d",
+    "dev:down": "docker compose down",
+    "dev:setup": "./scripts/dev-setup.sh",
+    "invoke:local": "yarn workspace @weather-history/lambda-weather-extractor invoke"
   },
   "devDependencies": {
     "@types/cheerio": "^1.0.0"

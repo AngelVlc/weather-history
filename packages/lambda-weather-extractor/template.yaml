@@ -6,6 +6,14 @@ Globals:
     Timeout: 30
     Runtime: nodejs20.x
 
+Parameters:
+  DynamoDBTableName:
+    Type: String
+    Default: weather-data
+  DynamoDBEndpoint:
+    Type: String
+    Default: ""
+
 Resources:
   WeatherExtractorFunction:
     Type: AWS::Serverless::Function
@@ -15,10 +23,11 @@ Resources:
       MemorySize: 128
       Environment:
         Variables:
-          DYNAMODB_TABLE_NAME: !Ref WeatherDataTable
+          DYNAMODB_TABLE_NAME: !Ref DynamoDBTableName
+          DYNAMODB_ENDPOINT: !Ref DynamoDBEndpoint
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref WeatherDataTable
+            TableName: !Ref DynamoDBTableName
     Events:
       EventBridgeTrigger:
         Type: EventBridgeRule
@@ -31,7 +40,7 @@ Resources:
   WeatherDataTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: weather-data
+      TableName: !Ref DynamoDBTableName
       AttributeDefinitions:
         - AttributeName: pk
           AttributeType: S
@@ -50,4 +59,4 @@ Outputs:
     Value: !GetAtt WeatherExtractorFunction.Arn
   WeatherDataTableName:
     Description: Weather Data DynamoDB Table Name
-    Value: !Ref WeatherDataTable
+    Value: !Ref DynamoDBTableName
