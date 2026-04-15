@@ -7,8 +7,9 @@ TABLE_NAME="${DYNAMODB_TABLE_NAME:-weather-data}"
 
 echo "Creating DynamoDB table at $ENDPOINT..."
 
-aws dynamodb create-table \
+AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy aws dynamodb create-table \
   --endpoint-url "$ENDPOINT" \
+  --region us-east-1 \
   --table-name "$TABLE_NAME" \
   --attribute-definitions \
     AttributeName=pk,AttributeType=S \
@@ -20,8 +21,9 @@ aws dynamodb create-table \
 
 echo "Table created successfully!"
 
-aws dynamodb wait table-exists \
+AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy aws dynamodb wait table-exists \
   --endpoint-url "$ENDPOINT" \
+  --region us-east-1 \
   --table-name "$TABLE_NAME"
 
 echo "Table is ready."

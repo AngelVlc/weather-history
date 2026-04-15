@@ -80,9 +80,16 @@ yarn dev:setup
 ### Invoke Lambda Locally
 
 ```bash
-DYNAMODB_ENDPOINT=http://localhost:8000 \
+cd packages/lambda-weather-extractor && \
+  DYNAMODB_ENDPOINT=http://host.docker.internal:8000 \
   DYNAMODB_TABLE_NAME=weather-data \
-  yarn invoke:local
+  AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+  sam local invoke WeatherExtractorFunction -e events/lambda-input.json
+```
+
+Or use the npm script (after updating DYNAMODB_ENDPOINT in samconfig.toml):
+```bash
+DYNAMODB_ENDPOINT=http://host.docker.internal:8000 yarn invoke:local
 ```
 
 ### Stop DynamoDB Local

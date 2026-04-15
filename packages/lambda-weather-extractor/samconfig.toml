@@ -1,3 +1,5 @@
+version = 1.0
+
 [default]
 [default.deploy]
 [default.build]
