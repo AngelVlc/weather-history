@@ -190,3 +190,11 @@ territories:
 | tempMin | Number | Minimum temperature in °C |
 | tempMax | Number | Maximum temperature in °C |
 | tempAvg | Number | Average temperature in °C |
+
+## Resilience
+
+- **Retry Policy**: 3 retry attempts with up to 30 minutes backoff
+- **Dead Letter Queue**: Failed events after retries are sent to SQS DLQ for manual reprocessing
+- **CloudWatch Logs**: 3-day retention for debugging
+
+If the source website (AVAMET) is down, the event will be retried automatically. If all retries fail, check the DLQ in AWS Console to redrive failed events once the source is available again.
