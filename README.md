@@ -217,7 +217,9 @@ In AWS Console → IAM → Roles → Create role:
                 "s3:PutObject",
                 "s3:DeleteObject",
                 "s3:ListBucket",
-                "s3:CreateBucket"
+                "s3:CreateBucket",
+                "s3:GetBucketTagging",
+                "s3:PutBucketTagging"
             ],
             "Resource": [
                 "arn:aws:s3:::weather-history-terraform-state",
@@ -237,7 +239,9 @@ In AWS Console → IAM → Roles → Create role:
                 "dynamodb:DeleteItem",
                 "dynamodb:ListTables",
                 "dynamodb:DescribeTimeToLive",
-                "dynamodb:UpdateTimeToLive"
+                "dynamodb:UpdateTimeToLive",
+                "dynamodb:TagResource",
+                "dynamodb:UntagResource"
             ],
             "Resource": [
                 "arn:aws:dynamodb:*:*:table/weather-data",
@@ -261,7 +265,8 @@ In AWS Console → IAM → Roles → Create role:
                 "iam:ListRolePolicies",
                 "iam:ListAttachedRolePolicies",
                 "iam:ListPolicies",
-                "iam:ListRoles"
+                "iam:ListRoles",
+                "iam:ListInstanceProfilesForRole"
             ],
             "Resource": "*"
         },
