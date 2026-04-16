@@ -20,6 +20,38 @@ jobs:
           name: Build
           command: yarn build
 
+  deploy-terraform:
+    docker:
+      - image: cimg/node:25.9
+    steps:
+      - checkout
+      - run:
+          name: Download Terraform
+          command: wget -q "https://releases.hashicorp.com/terraform/1.14.8/terraform_1.14.8_linux_amd64.zip" -o /tmp/terraform.zip
+      - run:
+          name: Install Terraform
+          command: sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
+      - run:
+          name: Verify Terraform
+          command: terraform version
+      - aws-cli/setup:
+          role_arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role_session_name: "circleci-terraform-deploy"
+      - run:
+          name: Terraform Init
+          command: |
+            cd terraform
+            terraform init -reconfigure \
+              -backend=true \
+              -backend-config="bucket=weather-history-terraform-state" \
+              -backend-config="key=terraform.tfstate" \
+              -backend-config="region=us-east-1"
+      - terraform/plan:
+          var_file: terraform.tfvars
+      - terraform/apply:
+          var_file: terraform.tfvars
+
   deploy-lambda:
     docker:
       - image: cimg/node:25.9
@@ -41,36 +73,6 @@ jobs:
           name: Upload to S3
           command: |
             aws s3 cp packages/lambda-weather-extractor/dist.zip s3://weather-history-lambda/lambda.zip
-
-  deploy-terraform:
-    docker:
-      - image: cimg/node:25.9
-    steps:
-      - checkout
-      - run:
-          name: Install Terraform
-          command: |
-            sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-            wget -q "https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip" -o /tmp/terraform.zip
-            sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
-            terraform version
-      - aws-cli/setup:
-          role_arn: ${OIDC_ROLE_ARN}
-          region: us-east-1
-          role_session_name: "circleci-terraform-deploy"
-      - run:
-          name: Terraform Init
-          command: |
-            cd terraform
-            terraform init -reconfigure \
-              -backend=true \
-              -backend-config="bucket=weather-history-terraform-state" \
-              -backend-config="key=terraform.tfstate" \
-              -backend-config="region=us-east-1"
-      - terraform/plan:
-          var_file: terraform.tfvars
-      - terraform/apply:
-          var_file: terraform.tfvars
 
 workflows:
   weather-history:
