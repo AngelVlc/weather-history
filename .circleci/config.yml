@@ -20,7 +20,7 @@ jobs:
           name: Build
           command: yarn build
 
-  deploy-terraform:
+  deploy-terraform-infra:
     docker:
       - image: cimg/node:25.9
     steps:
@@ -34,12 +34,20 @@ jobs:
       - run:
           name: Terraform Init
           command: terraform -chdir=terraform init -reconfigure
-      - terraform/plan:
-          path: terraform
-          var_file: terraform.tfvars
-      - terraform/apply:
-          path: terraform
-          var_file: terraform.tfvars
+      - run:
+          name: Terraform Apply Infrastructure
+          command: |
+            terraform -chdir=terraform apply -target=aws_s3_bucket.lambda_code \
+              -target=aws_sqs_queue.dlq \
+              -target=aws_dynamodb_table.weather_data \
+              -target=aws_iam_role.lambda_role \
+              -target=aws_iam_policy.lambda_policy \
+              -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
+              -target=aws_cloudwatch_event_rule.each_territory \
+              -target=aws_cloudwatch_event_target.lambda_target \
+              -target=aws_lambda_permission.allow_eventbridge \
+              -target=aws_cloudwatch_log_group.lambda_logs \
+              -var-file=terraform.tfvars -auto-approve
 
   deploy-lambda:
     docker:
@@ -63,6 +71,26 @@ jobs:
           command: |
             aws s3 cp packages/lambda-weather-extractor/dist.zip s3://weather-history-lambda/lambda.zip
 
+  deploy-terraform-lambda:
+    docker:
+      - image: cimg/node:25.9
+    steps:
+      - checkout
+      - terraform/install:
+          terraform_version: 1.14.8
+      - aws-cli/setup:
+          role_arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role_session_name: "circleci-terraform-deploy"
+      - run:
+          name: Terraform Init
+          command: terraform -chdir=terraform init -reconfigure
+      - run:
+          name: Terraform Apply Lambda
+          command: |
+            terraform -chdir=terraform apply -target=aws_lambda_function.weather_extractor \
+              -var-file=terraform.tfvars -auto-approve
+
 workflows:
   weather-history:
     jobs:
@@ -70,7 +98,7 @@ workflows:
           filters:
             branches:
               only: main
-      - deploy-terraform:
+      - deploy-terraform-infra:
           requires:
             - test
           filters:
@@ -78,8 +106,13 @@ workflows:
               only: main
       - deploy-lambda:
           requires:
-            - test
-            - deploy-terraform
+            - deploy-terraform-infra
+          filters:
+            branches:
+              only: main
+      - deploy-terraform-lambda:
+          requires:
+            - deploy-lambda
           filters:
             branches:
               only: main
