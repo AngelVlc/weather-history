@@ -1,13 +1,12 @@
 resource "aws_lambda_function" "dlq_processor" {
-  s3_bucket        = aws_s3_bucket.lambda_code.id
-  s3_key           = "dlq-processor.zip"
-  function_name    = "${var.lambda_function_name}-dlq-processor"
-  role             = aws_iam_role.dlq_processor_role.arn
-  handler          = "dist/handler.handler"
-  source_code_hash = data.archive_file.dlq_processor_lambda.output_base64sha256
-  runtime          = "nodejs20.x"
-  timeout          = 30
-  memory_size      = 128
+  s3_bucket     = aws_s3_bucket.lambda_code.id
+  s3_key        = "dlq-processor.zip"
+  function_name = "${var.lambda_function_name}-dlq-processor"
+  role          = aws_iam_role.dlq_processor_role.arn
+  handler       = "dist/handler.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 30
+  memory_size   = 128
 
   environment {
     variables = {
