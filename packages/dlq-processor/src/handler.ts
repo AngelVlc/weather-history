@@ -10,7 +10,13 @@ export const handler = async (event: SQSEvent, _context: Context): Promise<void>
   for (const record of event.Records) {
     try {
       const body = JSON.parse(record.body);
-      const eventData = JSON.parse(body.Message);
+      let eventData: Record<string, unknown>;
+
+      if (body.Message) {
+        eventData = JSON.parse(body.Message);
+      } else {
+        eventData = body;
+      }
 
       const emailContent = formatEmail(eventData);
 
