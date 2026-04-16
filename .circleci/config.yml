@@ -33,12 +33,12 @@ jobs:
           role_session_name: "circleci-terraform-deploy"
       - run:
           name: Terraform Init
-          command: |
-            cd terraform
-            terraform init -reconfigure
+          command: terraform -chdir=terraform init -reconfigure
       - terraform/plan:
+          path: terraform
           var_file: terraform.tfvars
       - terraform/apply:
+          path: terraform
           var_file: terraform.tfvars
 
   deploy-lambda:
