@@ -68,13 +68,13 @@ This project uses CircleCI OIDC for AWS authentication instead of static credent
 
 ### When working with CircleCI config.yml
 
-- Use `aws-cli/setup` with `role-arn: ${OIDC_ROLE_ARN}` instead of static keys
+- Use `aws-cli/setup` with `role_arn: ${OIDC_ROLE_ARN}` instead of static keys
 - Example:
   ```yaml
   - aws-cli/setup:
-      role-arn: ${OIDC_ROLE_ARN}
+      role_arn: ${OIDC_ROLE_ARN}
       region: us-east-1
-      role-session-name: "circleci-deploy"
+      role_session_name: "circleci-deploy"
   ```
 
 ### When adding new AWS permissions

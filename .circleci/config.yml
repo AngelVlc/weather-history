@@ -34,9 +34,9 @@ jobs:
             cd packages/lambda-weather-extractor
             zip -r dist.zip dist/
       - aws-cli/setup:
-          role-arn: ${OIDC_ROLE_ARN}
+          role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
-          role-session-name: "circleci-lambda-deploy"
+          role_session_name: "circleci-lambda-deploy"
       - run:
           name: Upload to S3
           command: |
@@ -50,9 +50,9 @@ jobs:
       - terraform/install:
           version: 1.6.0
       - aws-cli/setup:
-          role-arn: ${OIDC_ROLE_ARN}
+          role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
-          role-session-name: "circleci-terraform-deploy"
+          role_session_name: "circleci-terraform-deploy"
       - terraform/init:
           backend_config:
             bucket: weather-history-terraform-state
