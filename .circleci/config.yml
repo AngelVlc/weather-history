@@ -81,16 +81,16 @@ workflows:
           filters:
             branches:
               only: main
+      - deploy-terraform:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
       - deploy-lambda:
           requires:
             - test
             - deploy-terraform
-          filters:
-            branches:
-              only: main
-      - deploy-terraform:
-          requires:
-            - test
           filters:
             branches:
               only: main
