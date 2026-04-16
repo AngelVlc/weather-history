@@ -8,7 +8,7 @@ orbs:
 jobs:
   test:
     docker:
-      - image: cimg/node:20
+      - image: cimg/node:25.9
     steps:
       - checkout
       - node/install-packages:
@@ -22,7 +22,7 @@ jobs:
 
   deploy-lambda:
     docker:
-      - image: cimg/node:20
+      - image: cimg/node:25.9
     steps:
       - checkout
       - node/install-packages:
@@ -44,7 +44,7 @@ jobs:
 
   deploy-terraform:
     docker:
-      - image: cimg/node:20
+      - image: cimg/node:25.9
     steps:
       - checkout
       - run:
