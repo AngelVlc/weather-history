@@ -58,11 +58,15 @@ jobs:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
           role_session_name: "circleci-terraform-deploy"
-      - terraform/init:
-          backend_config:
-            bucket: weather-history-terraform-state
-            key: terraform.tfstate
-            region: us-east-1
+      - run:
+          name: Terraform Init
+          command: |
+            cd terraform
+            terraform init -reconfigure \
+              -backend=true \
+              -backend-config="bucket=weather-history-terraform-state" \
+              -backend-config="key=terraform.tfstate" \
+              -backend-config="region=us-east-1"
       - terraform/plan:
           var_file: terraform.tfvars
       - terraform/apply:
