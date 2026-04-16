@@ -107,15 +107,16 @@ Examples:
 
 When resources have circular dependencies (e.g., Lambda needs code in S3, but S3 bucket is managed by Terraform), split the deployment into multiple steps:
 
-1. **deploy-terraform-infra**: Creates infrastructure (S3 buckets, IAM roles, DynamoDB, EventBridge rules) excluding Lambda
+1. **deploy-terraform-infra**: Creates infrastructure (S3 buckets, IAM roles, DynamoDB, EventBridge rules) excluding Lambdas
 2. **deploy-lambda**: Builds and uploads Lambda code to S3
-3. **deploy-terraform-lambda**: Creates Lambda function and its dependencies (EventBridge targets, permissions)
+3. **deploy-terraform-lambda**: Creates main Lambda function and its dependencies (EventBridge targets, permissions)
+4. **deploy-terraform-dlq-processor**: Creates DLQ processor Lambda and its SQS trigger
 
 Key point: Use `-target` to limit which resources Terraform manages in each step. When using `-target`, Terraform still creates dependent resources if they don't exist.
 
 Example:
 ```yaml
-# Step 1: Create everything except Lambda and its EventBridge targets
+# Step 1: Create everything except Lambdas and their triggers
 terraform apply -target=aws_s3_bucket.code -target=aws_dynamodb_table.data -target=aws_iam_role.lambda
 
 # Step 2: After uploading Lambda code to S3
