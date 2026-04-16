@@ -82,6 +82,7 @@ workflows:
       - deploy-lambda:
           requires:
             - test
+            - deploy-terraform
           filters:
             branches:
               only: main
