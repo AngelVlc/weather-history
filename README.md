@@ -269,7 +269,8 @@ In AWS Console → IAM → Roles → Create role:
             ],
             "Resource": [
                 "arn:aws:lambda:*:*:function:weather-extractor",
-                "arn:aws:lambda:*:*:function:weather-extractor-dlq-processor"
+                "arn:aws:lambda:*:*:function:weather-extractor-dlq-processor",
+                "arn:aws:lambda:*:*:event-source-mapping:*"
             ]
         },
         {
