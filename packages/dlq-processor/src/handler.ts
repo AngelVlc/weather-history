@@ -15,7 +15,7 @@ export const handler = async (event: SQSEvent, _context: Context): Promise<void>
 
       await sendEmail(emailContent);
 
-      console.log('Email sent for territory:', eventData.territory);
+      console.log('Email sent to', process.env.NOTIFICATION_EMAIL, 'for territory:', eventData.territory);
     } catch (error) {
       console.error('Error processing message, marking as processed:', error);
     }
