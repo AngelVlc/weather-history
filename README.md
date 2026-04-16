@@ -289,7 +289,8 @@ In AWS Console → IAM → Roles → Create role:
                 "logs:DescribeLogStreams",
                 "logs:GetLogEvents",
                 "logs:PutRetentionPolicy",
-                "logs:FilterLogEvents"
+                "logs:FilterLogEvents",
+                "logs:ListTagsForResource"
             ],
             "Resource": "*"
         },
