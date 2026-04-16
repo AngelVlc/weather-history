@@ -225,17 +225,7 @@ In AWS Console → IAM → Roles → Create role:
         {
             "Effect": "Allow",
             "Action": [
-                "dynamodb:CreateTable",
-                "dynamodb:DeleteTable",
-                "dynamodb:DescribeTable",
-                "dynamodb:GetItem",
-                "dynamodb:PutItem",
-                "dynamodb:DeleteItem",
-                "dynamodb:ListTables",
-                "dynamodb:DescribeTimeToLive",
-                "dynamodb:UpdateTimeToLive",
-                "dynamodb:TagResource",
-                "dynamodb:UntagResource"
+                "dynamodb:*"
             ],
             "Resource": [
                 "arn:aws:dynamodb:*:*:table/weather-data",
@@ -245,22 +235,7 @@ In AWS Console → IAM → Roles → Create role:
         {
             "Effect": "Allow",
             "Action": [
-                "iam:CreateRole",
-                "iam:DeleteRole",
-                "iam:GetRole",
-                "iam:PassRole",
-                "iam:CreatePolicy",
-                "iam:DeletePolicy",
-                "iam:GetPolicy",
-                "iam:CreatePolicyVersion",
-                "iam:DeletePolicyVersion",
-                "iam:AttachRolePolicy",
-                "iam:DetachRolePolicy",
-                "iam:ListRolePolicies",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListPolicies",
-                "iam:ListRoles",
-                "iam:ListInstanceProfilesForRole"
+                "iam:*"
             ],
             "Resource": "*"
         },
