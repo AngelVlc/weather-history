@@ -27,7 +27,7 @@ jobs:
       - checkout
       - run:
           name: Download Terraform
-          command: wget -q "https://releases.hashicorp.com/terraform/1.14.8/terraform_1.14.8_linux_amd64.zip" -o /tmp/terraform.zip
+          command: curl -sLO "https://releases.hashicorp.com/terraform/1.14.8/terraform_1.14.8_linux_amd64.zip" -o /tmp/terraform.zip
       - run:
           name: Install Terraform
           command: sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
