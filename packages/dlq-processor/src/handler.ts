@@ -2,7 +2,6 @@ import { SQSEvent, Context } from 'aws-lambda';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 const sesClient = new SESClient({ region: process.env.AWS_REGION });
-const SOURCE_EMAIL = 'noreply@avametdata.es';
 
 export const handler = async (event: SQSEvent, _context: Context): Promise<void> => {
   console.log('Processing DLQ messages:', event.Records.length);
@@ -41,17 +40,17 @@ The message remains in the DLQ for investigation and redrive.
 }
 
 async function sendEmail(content: string): Promise<void> {
-  const destinationEmail = process.env.NOTIFICATION_EMAIL;
+  const notificationEmail = process.env.NOTIFICATION_EMAIL;
 
-  if (!destinationEmail) {
+  if (!notificationEmail) {
     console.error('NOTIFICATION_EMAIL environment variable not set');
     throw new Error('NOTIFICATION_EMAIL not configured');
   }
 
   const command = new SendEmailCommand({
-    Source: SOURCE_EMAIL,
+    Source: notificationEmail,
     Destination: {
-      ToAddresses: [destinationEmail],
+      ToAddresses: [notificationEmail],
     },
     Message: {
       Subject: {
