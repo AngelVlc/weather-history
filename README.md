@@ -250,7 +250,8 @@ In AWS Console → IAM → Roles → Create role:
                 "lambda:InvokeFunction",
                 "lambda:AddPermission",
                 "lambda:RemovePermission",
-                "lambda:GetFunctionConfiguration"
+                "lambda:GetFunctionConfiguration",
+                "lambda:ListVersionsByFunction"
             ],
             "Resource": "arn:aws:lambda:*:*:function:weather-extractor"
         },
