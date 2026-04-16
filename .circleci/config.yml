@@ -68,16 +68,17 @@ jobs:
             yarn build
             zip -r dist.zip dist/
             cd ../dlq-processor
-            yarn install --frozen-lockfile
+            yarn install
             yarn build
       - aws-cli/setup:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
           role_session_name: "circleci-lambda-deploy"
       - run:
-          name: Upload to S3
+          name: Upload Lambda packages to S3
           command: |
             aws s3 cp packages/lambda-weather-extractor/dist.zip s3://weather-history-lambda/lambda.zip
+            aws s3 cp packages/dlq-processor/dist.zip s3://weather-history-lambda/dlq-processor.zip
 
   deploy-terraform-lambda:
     docker:

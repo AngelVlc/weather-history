@@ -5,7 +5,7 @@
   "main": "dist/handler.js",
   "scripts": {
     "build": "tsc && npm run copy-deps",
-    "copy-deps": "cp -r ../../node_modules ./dist/"
+    "copy-deps": "cp -r node_modules ./dist/"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.0.0"

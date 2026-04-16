@@ -1,11 +1,6 @@
-data "archive_file" "dlq_processor_lambda" {
-  type        = "zip"
-  source_dir  = "${path.module}/../packages/dlq-processor/src"
-  output_path = "${path.module}/../packages/dlq-processor/dist.zip"
-}
-
 resource "aws_lambda_function" "dlq_processor" {
-  filename         = data.archive_file.dlq_processor_lambda.output_path
+  s3_bucket        = aws_s3_bucket.lambda_code.id
+  s3_key           = "dlq-processor.zip"
   function_name    = "${var.lambda_function_name}-dlq-processor"
   role             = aws_iam_role.dlq_processor_role.arn
   handler          = "dist/handler.handler"
