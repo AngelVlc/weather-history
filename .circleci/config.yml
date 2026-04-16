@@ -25,12 +25,20 @@ jobs:
       - image: cimg/node:25.9
     steps:
       - checkout
+      - node/install-packages:
+          pkg-manager: yarn
       - terraform/install:
           terraform_version: 1.14.8
       - aws-cli/setup:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
           role_session_name: "circleci-terraform-deploy"
+      - run:
+          name: Build Lambda package
+          command: |
+            yarn build
+            cd packages/lambda-weather-extractor
+            zip -r dist.zip dist/
       - run:
           name: Terraform Init
           command: terraform -chdir=terraform init -reconfigure
