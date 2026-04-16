@@ -24,7 +24,7 @@ output "eventbridge_rules" {
     for rule in aws_cloudwatch_event_rule.each_territory :
     rule.name => {
       schedule = rule.schedule_expression
-      target   = aws_cloudwatch_event_target.lambda_target[rule.name].target_id
+      target   = aws_cloudwatch_event_target.lambda_target[split("-", rule.name)[2]].target_id
     }
   }
 }
