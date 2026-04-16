@@ -114,6 +114,8 @@ When resources have circular dependencies (e.g., Lambda needs code in S3, but S3
 
 Key point: Use `-target` to limit which resources Terraform manages in each step. When using `-target`, Terraform still creates dependent resources if they don't exist.
 
+**IMPORTANT**: Always include `source_code_hash` in Lambda resources. Without it, Terraform cannot detect code changes and will not redeploy the Lambda even if the zip file in S3 is updated.
+
 Example:
 ```yaml
 # Step 1: Create everything except Lambdas and their triggers
