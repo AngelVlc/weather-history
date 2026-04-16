@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.2.0
-  aws-cli: circleci/aws-cli@4.1.1
+  aws-cli: circleci/aws-cli@4.1.3
   terraform: circleci/terraform@1.0.2
 
 jobs:
@@ -34,9 +34,9 @@ jobs:
             cd packages/lambda-weather-extractor
             zip -r dist.zip dist/
       - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-region: us-east-1
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          role-arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role-session-name: "circleci-lambda-deploy"
       - run:
           name: Upload to S3
           command: |
@@ -50,9 +50,9 @@ jobs:
       - terraform/install:
           version: 1.6.0
       - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-region: us-east-1
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          role-arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role-session-name: "circleci-terraform-deploy"
       - terraform/init:
           backend_config:
             bucket: weather-history-terraform-state

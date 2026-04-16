@@ -122,9 +122,7 @@ yarn dev:stop
    aws s3 mb s3://weather-history-terraform-state
    ```
 
-3. Configure CircleCI environment variables:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
+3. Configure CircleCI OIDC (see [CircleCI OIDC Setup](#circleci-oidc-setup))
 
 ### Deploy
 
@@ -198,3 +196,76 @@ territories:
 - **CloudWatch Logs**: 3-day retention for debugging
 
 If the source website (AVAMET) is down, the event will be retried automatically. If all retries fail, check the DLQ in AWS Console to redrive failed events once the source is available again.
+
+## CircleCI OIDC Setup
+
+CircleCI uses OIDC to authenticate with AWS instead of static credentials.
+
+### 1. Create IAM Role
+
+In AWS Console → IAM → Roles → Create role:
+
+- **Trusted entity type**: Federated identity
+- **Identity provider**: Select your CircleCI OIDC provider (e.g., `oidc.circleci.com/org/{ORG_ID}`)
+- **Subject**: `org/{ORG_ID}/project/{PROJECT_ID}/*`
+- **Permissions**: Attach the required policies (see below)
+
+### 2. Required Policies
+
+**For deploy-lambda:**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::weather-history-lambda",
+        "arn:aws:s3:::weather-history-lambda/*"
+      ]
+    }
+  ]
+}
+```
+
+**For deploy-terraform:**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::weather-history-terraform-state",
+        "arn:aws:s3:::weather-history-terraform-state/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
+        "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem", "dynamodb:ListTables"
+      ],
+      "Resource": "arn:aws:dynamodb:*:*:table/weather-history-*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:*Role", "iam:*Policy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
+        "lambda:*", "logs:*", "events:*", "sqs:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+### 3. Configure CircleCI Environment Variable
+
+In CircleCI → Project Settings → Environment Variables:
+
+- Add `OIDC_ROLE_ARN` with the ARN of the role created above (e.g., `arn:aws:iam::123456789:role/CircleCI-WeatherHistory-Deploy`)

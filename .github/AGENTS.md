@@ -44,6 +44,9 @@ yarn dev:down      # Stop DynamoDB Local
 ```
 
 ## Monorepo Structure
+
+Example directory structure for the monorepo:
+
 ```
 weather-history/
 ├── packages/
@@ -58,3 +61,31 @@ weather-history/
 - Comments in code: none unless explicitly requested
 - Commit messages: concise, focus on the "why"
 - Feature branches: short-lived, merged via PR
+
+## CircleCI OIDC Authentication
+
+This project uses CircleCI OIDC for AWS authentication instead of static credentials.
+
+### When working with CircleCI config.yml
+
+- Use `aws-cli/setup` with `role-arn: ${OIDC_ROLE_ARN}` instead of static keys
+- Example:
+  ```yaml
+  - aws-cli/setup:
+      role-arn: ${OIDC_ROLE_ARN}
+      region: us-east-1
+      role-session-name: "circleci-deploy"
+  ```
+
+### When adding new AWS permissions
+
+1. Check what resources the job needs to access
+2. Document the required IAM permissions
+3. Update the OIDC role trust policy to allow the specific project: `org/{ORG_ID}/project/{PROJECT_ID}/*`
+
+### Important reminders for new projects
+
+1. **Identity Provider**: Reuse existing CircleCI OIDC provider (don't create new ones)
+2. **New Role**: Create a new IAM role for each project with project-specific trust policy
+3. **Environment Variable**: Add `OIDC_ROLE_ARN` in CircleCI project settings
+4. **No Static Credentials**: Never add `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY`
