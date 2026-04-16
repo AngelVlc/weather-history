@@ -206,13 +206,10 @@ To test email notifications without waiting for retries:
 
 1. Go to AWS Console → SQS → `weather-extractor-dlq`
 2. Click "Send message"
-3. Paste a test event JSON:
+3. Paste a test event JSON (EventBridge format):
    ```json
    {
-     "territory": "test",
-     "territoryName": "Test Territory",
-     "location": "Test Location",
-     "stationIds": ["test001", "test002"]
+     "Message": "{\"territory\":\"test\",\"territoryName\":\"Test Territory\",\"location\":\"Test Location\",\"stationIds\":[\"test001\",\"test002\"]}"
    }
    ```
 4. The DLQ processor will send an email notification within ~5 seconds
