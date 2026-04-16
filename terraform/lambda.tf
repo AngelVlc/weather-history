@@ -60,7 +60,8 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 resource "aws_lambda_function" "weather_extractor" {
   function_name = var.lambda_function_name
   role          = aws_iam_role.lambda_role.arn
-  filename      = "${path.module}/../packages/lambda-weather-extractor/dist.zip"
+  s3_bucket     = aws_s3_bucket.lambda_code.id
+  s3_key        = "lambda.zip"
   handler       = "dist/handler.handler"
   runtime       = "nodejs20.x"
   timeout       = 30
@@ -75,8 +76,6 @@ resource "aws_lambda_function" "weather_extractor" {
   depends_on = [
     aws_cloudwatch_log_group.lambda_logs
   ]
-
-  source_code_hash = filebase64sha256("${path.module}/../packages/lambda-weather-extractor/dist.zip")
 }
 
 resource "aws_cloudwatch_log_group" "lambda_logs" {
