@@ -47,8 +47,13 @@ jobs:
       - image: cimg/node:20
     steps:
       - checkout
-      - terraform/install:
-          version: 1.6.0
+      - run:
+          name: Install Terraform
+          command: |
+            sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+            wget -q "https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip" -o /tmp/terraform.zip
+            sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
+            terraform version
       - aws-cli/setup:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
