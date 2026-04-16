@@ -121,3 +121,20 @@ terraform apply -target=aws_s3_bucket.code -target=aws_dynamodb_table.data -targ
 # Step 2: After uploading Lambda code to S3
 terraform apply -target=aws_lambda_function.main -target=aws_cloudwatch_event_target.lambda_target
 ```
+
+### Testing DLQ Processor
+
+When testing the DLQ processor:
+
+1. **Verify Lambda works first**: Test the DLQ processor Lambda directly in AWS Console before sending test messages to DLQ
+2. **Disable event source mapping first**: Temporarily disable the SQS trigger to prevent retries:
+   ```bash
+   aws lambda update-event-source-mapping --uuid <uuid> --enabled false --region us-east-1
+   ```
+3. **Send test message**: Add test message to DLQ
+4. **Re-enable**: Re-enable the trigger after verifying the test worked
+   ```bash
+   aws lambda update-event-source-mapping --uuid <uuid> --enabled true --region us-east-1
+   ```
+
+This prevents infinite retry loops if the Lambda is not working correctly.
