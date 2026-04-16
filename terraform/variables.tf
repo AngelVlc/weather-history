@@ -15,3 +15,9 @@ variable "dynamodb_table_name" {
   type        = string
   default     = "weather-data"
 }
+
+variable "notification_email" {
+  description = "Email address for DLQ failure notifications"
+  type        = string
+  default     = ""
+}

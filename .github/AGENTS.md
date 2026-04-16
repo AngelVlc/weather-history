@@ -50,7 +50,8 @@ Example directory structure for the monorepo:
 ```
 weather-history/
 ├── packages/
-│   └── lambda-weather-extractor/
+│   ├── lambda-weather-extractor/
+│   └── dlq-processor/
 ├── terraform/
 ├── config/
 │   └── territories.yaml
@@ -97,9 +98,10 @@ Examples:
 
 1. **Identity Provider**: Reuse existing CircleCI OIDC provider (don't create new ones)
 2. **New Role**: Create a new IAM role for each project with project-specific trust policy
-3. **Environment Variable**: Add `OIDC_ROLE_ARN` in CircleCI project settings
-  4. **No Static Credentials**: Never add `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY`
-  5. **Terraform State Bucket**: Create S3 bucket for Terraform state before first deployment (e.g., `aws s3 mb s3://my-project-terraform-state`)
+  3. **Environment Variable**: Add `OIDC_ROLE_ARN` in CircleCI project settings
+  4. **Notification Email**: Add `NOTIFICATION_EMAIL` in CircleCI project settings (email for DLQ failure notifications)
+   5. **No Static Credentials**: Never add `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY`
+   6. **Terraform State Bucket**: Create S3 bucket for Terraform state before first deployment (e.g., `aws s3 mb s3://my-project-terraform-state`)
 
 ### Splitting Terraform Deployments
 

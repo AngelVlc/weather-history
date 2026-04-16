@@ -25,15 +25,18 @@ Daily weather data extraction and storage for historical analysis.
 ```
 weather-history/
 ├── packages/
-│   └── lambda-weather-extractor/    # Lambda function
-│       ├── src/
-│       │   ├── handler.ts           # Lambda entry point
-│       │   ├── httpClient.ts       # HTTP client for AVAMET
-│       │   ├── parser/             # HTML parsing logic
-│       │   └── dynamodb/           # DynamoDB client
-│       ├── tests/                   # Jest unit tests
-│       ├── events/                  # Sample event files
-│       └── template.yaml           # SAM template
+│   ├── lambda-weather-extractor/    # Main Lambda function
+│   │   ├── src/
+│   │   │   ├── handler.ts           # Lambda entry point
+│   │   │   ├── httpClient.ts       # HTTP client for AVAMET
+│   │   │   ├── parser/             # HTML parsing logic
+│   │   │   └── dynamodb/           # DynamoDB client
+│   │   ├── tests/                   # Jest unit tests
+│   │   ├── events/                  # Sample event files
+│   │   └── template.yaml           # SAM template
+│   └── dlq-processor/              # DLQ notification Lambda
+│       └── src/
+│           └── handler.ts           # Sends email via SES
 ├── terraform/                       # Infrastructure as code
 ├── config/
 │   └── territories.yaml            # Territory configuration
@@ -187,9 +190,34 @@ territories:
 
 - **Retry Policy**: 3 retry attempts with up to 30 minutes backoff
 - **Dead Letter Queue**: Failed events after retries are sent to SQS DLQ for manual reprocessing
+- **DLQ Processor Lambda**: Automatically sends email notification when events reach DLQ
 - **CloudWatch Logs**: 3-day retention for debugging
 
-If the source website (AVAMET) is down, the event will be retried automatically. If all retries fail, check the DLQ in AWS Console to redrive failed events once the source is available again.
+### What happens when an event fails?
+
+1. Lambda receives event from EventBridge
+2. Lambda fails (API down, parsing error, etc.)
+3. EventBridge retries up to 3 times
+4. After all retries fail, event goes to DLQ (SQS)
+5. DLQ Processor Lambda detects new message
+6. Email sent to configured notification address
+7. Message stays in DLQ for investigation
+
+### Investigating DLQ failures
+
+1. Go to AWS Console → SQS → `weather-extractor-dlq`
+2. View messages to see event details and error
+3. Check CloudWatch Logs `/aws/lambda/weather-extractor` for error details
+4. Fix the issue (e.g., AVAMET is back online)
+
+### Redriving failed events
+
+1. After fixing the issue, go to AWS Console → SQS → `weather-extractor-dlq`
+2. Click "Start DLQ redrive" or "Redrive messages"
+3. Select the messages to reprocess
+4. Lambda will process them again
+
+Note: The DLQ processor sends email notifications but does NOT delete messages, allowing for investigation and manual redrive.
 
 ## CircleCI OIDC Setup
 
@@ -244,7 +272,28 @@ In AWS Console → IAM → Roles → Create role:
             "Action": [
                 "lambda:*"
             ],
-            "Resource": "arn:aws:lambda:*:*:function:weather-extractor"
+            "Resource": [
+                "arn:aws:lambda:*:*:function:weather-extractor",
+                "arn:aws:lambda:*:*:function:weather-extractor-dlq-processor"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail",
+                "ses:SendTemplatedEmail"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sqs:*"
+            ],
+            "Resource": [
+                "arn:aws:sqs:*:*:weather-extractor-dlq"
+            ]
         },
         {
             "Effect": "Allow",
@@ -295,8 +344,9 @@ In AWS Console → IAM → Roles → Create role:
 }
 ```
 
-### 3. Configure CircleCI Environment Variable
+### 3. Configure CircleCI Environment Variables
 
 In CircleCI → Project Settings → Environment Variables:
 
 - Add `OIDC_ROLE_ARN` with the ARN of the role created above (e.g., `arn:aws:iam::123456789:role/CircleCI-WeatherHistory-Deploy`)
+- Add `NOTIFICATION_EMAIL` with the email address for DLQ failure notifications (must be verified in AWS SES)

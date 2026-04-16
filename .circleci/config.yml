@@ -46,7 +46,13 @@ jobs:
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
               -target=aws_cloudwatch_event_rule.each_territory \
               -target=aws_cloudwatch_log_group.lambda_logs \
-              -var-file=terraform.tfvars -auto-approve
+              -target=aws_iam_role.dlq_processor_role \
+              -target=aws_iam_role_policy.dlq_processor_ses_policy \
+              -target=aws_lambda_function.dlq_processor \
+              -target=aws_lambda_event_source_mapping.dlq_processor_trigger \
+              -var-file=terraform.tfvars \
+              -var="notification_email=${NOTIFICATION_EMAIL}" \
+              -auto-approve
 
   deploy-lambda:
     docker:
@@ -56,11 +62,14 @@ jobs:
       - node/install-packages:
           pkg-manager: yarn
       - run:
-          name: Build Lambda package
+          name: Build Lambda packages
           command: |
-            yarn build
             cd packages/lambda-weather-extractor
+            yarn build
             zip -r dist.zip dist/
+            cd ../dlq-processor
+            yarn install --frozen-lockfile
+            yarn build
       - aws-cli/setup:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
@@ -91,7 +100,9 @@ jobs:
               -target=aws_lambda_function.weather_extractor \
               -target=aws_cloudwatch_event_target.lambda_target \
               -target=aws_lambda_permission.allow_eventbridge \
-              -var-file=terraform.tfvars -auto-approve
+              -var-file=terraform.tfvars \
+              -var="notification_email=${NOTIFICATION_EMAIL}" \
+              -auto-approve
 
 workflows:
   weather-history:
