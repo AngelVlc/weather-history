@@ -27,21 +27,16 @@ weather-history/
 ├── packages/
 │   ├── lambda-weather-extractor/    # Main Lambda function
 │   │   ├── src/
-│   │   │   ├── handler.ts           # Lambda entry point
-│   │   │   ├── httpClient.ts       # HTTP client for AVAMET
-│   │   │   ├── parser/             # HTML parsing logic
-│   │   │   └── dynamodb/           # DynamoDB client
-│   │   ├── tests/                   # Jest unit tests
-│   │   ├── events/                  # Sample event files
-│   │   └── template.yaml           # SAM template
+│   │   ├── tests/
+│   │   ├── events/
+│   │   └── template.yaml
 │   └── dlq-processor/              # DLQ notification Lambda
 │       └── src/
-│           └── handler.ts           # Sends email via SES
 ├── terraform/                       # Infrastructure as code
 ├── config/
-│   └── territories.yaml            # Territory configuration
-├── scripts/                         # Helper scripts
-└── docker-compose.yml              # DynamoDB Local
+│   └── territories.yaml
+├── scripts/
+└── docker-compose.yml
 ```
 
 ## Prerequisites
