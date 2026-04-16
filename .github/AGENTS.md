@@ -83,6 +83,15 @@ This project uses CircleCI OIDC for AWS authentication instead of static credent
 2. Document the required IAM permissions
 3. Update the OIDC role trust policy to allow the specific project: `org/{ORG_ID}/project/{PROJECT_ID}/*`
 
+### CircleCI Orbs
+
+Before manually installing tools in CircleCI jobs, check if an orb exists that already provides that functionality. Orbs include pre-installed and pre-configured tools, reducing build time and maintenance.
+
+Examples:
+- `circleci/terraform@1.0.2` - includes Terraform CLI
+- `circleci/aws-cli@4.1.3` - includes AWS CLI
+- `circleci/node@5.2.0` - includes Node.js with package manager helpers
+
 ### Important reminders for new projects
 
 1. **Identity Provider**: Reuse existing CircleCI OIDC provider (don't create new ones)
