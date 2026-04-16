@@ -213,16 +213,7 @@ In AWS Console → IAM → Roles → Create role:
         {
             "Effect": "Allow",
             "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject",
-                "s3:ListBucket",
-                "s3:CreateBucket",
-                "s3:GetBucketTagging",
-                "s3:PutBucketTagging",
-                "s3:GetBucketPolicy",
-                "s3:PutBucketPolicy",
-                "s3:DeleteBucketPolicy"
+                "s3:*"
             ],
             "Resource": [
                 "arn:aws:s3:::weather-history-terraform-state",
