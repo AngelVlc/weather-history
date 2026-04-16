@@ -37,15 +37,14 @@ jobs:
       - run:
           name: Terraform Apply Infrastructure
           command: |
-            terraform -chdir=terraform apply -target=aws_s3_bucket.lambda_code \
+            terraform -chdir=terraform apply \
+              -target=aws_s3_bucket.lambda_code \
               -target=aws_sqs_queue.dlq \
               -target=aws_dynamodb_table.weather_data \
               -target=aws_iam_role.lambda_role \
               -target=aws_iam_policy.lambda_policy \
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
               -target=aws_cloudwatch_event_rule.each_territory \
-              -target=aws_cloudwatch_event_target.lambda_target \
-              -target=aws_lambda_permission.allow_eventbridge \
               -target=aws_cloudwatch_log_group.lambda_logs \
               -var-file=terraform.tfvars -auto-approve
 
@@ -88,7 +87,10 @@ jobs:
       - run:
           name: Terraform Apply Lambda
           command: |
-            terraform -chdir=terraform apply -target=aws_lambda_function.weather_extractor \
+            terraform -chdir=terraform apply \
+              -target=aws_lambda_function.weather_extractor \
+              -target=aws_cloudwatch_event_target.lambda_target \
+              -target=aws_lambda_permission.allow_eventbridge \
               -var-file=terraform.tfvars -auto-approve
 
 workflows:

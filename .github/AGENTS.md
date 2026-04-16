@@ -98,5 +98,24 @@ Examples:
 1. **Identity Provider**: Reuse existing CircleCI OIDC provider (don't create new ones)
 2. **New Role**: Create a new IAM role for each project with project-specific trust policy
 3. **Environment Variable**: Add `OIDC_ROLE_ARN` in CircleCI project settings
-4. **No Static Credentials**: Never add `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY`
-5. **Terraform State Bucket**: Create S3 bucket for Terraform state before first deployment (e.g., `aws s3 mb s3://my-project-terraform-state`)
+  4. **No Static Credentials**: Never add `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY`
+  5. **Terraform State Bucket**: Create S3 bucket for Terraform state before first deployment (e.g., `aws s3 mb s3://my-project-terraform-state`)
+
+### Splitting Terraform Deployments
+
+When resources have circular dependencies (e.g., Lambda needs code in S3, but S3 bucket is managed by Terraform), split the deployment into multiple steps:
+
+1. **deploy-terraform-infra**: Creates infrastructure (S3 buckets, IAM roles, DynamoDB, EventBridge rules) excluding Lambda
+2. **deploy-lambda**: Builds and uploads Lambda code to S3
+3. **deploy-terraform-lambda**: Creates Lambda function and its dependencies (EventBridge targets, permissions)
+
+Key point: Use `-target` to limit which resources Terraform manages in each step. When using `-target`, Terraform still creates dependent resources if they don't exist.
+
+Example:
+```yaml
+# Step 1: Create everything except Lambda and its EventBridge targets
+terraform apply -target=aws_s3_bucket.code -target=aws_dynamodb_table.data -target=aws_iam_role.lambda
+
+# Step 2: After uploading Lambda code to S3
+terraform apply -target=aws_lambda_function.main -target=aws_cloudwatch_event_target.lambda_target
+```
