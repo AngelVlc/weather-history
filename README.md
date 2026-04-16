@@ -200,6 +200,25 @@ Each territory event creates one record per station (multiple records share the 
 6. Email sent to configured notification address
 7. Message stays in DLQ for investigation
 
+### Testing DLQ notifications
+
+To test email notifications without waiting for retries:
+
+1. Go to AWS Console → SQS → `weather-extractor-dlq`
+2. Click "Send message"
+3. Paste a test event JSON:
+   ```json
+   {
+     "territory": "test",
+     "territoryName": "Test Territory",
+     "location": "Test Location",
+     "stationIds": ["test001", "test002"]
+   }
+   ```
+4. The DLQ processor will send an email notification within ~5 seconds
+
+This bypasses the retry mechanism and tests the notification flow immediately.
+
 ### Investigating DLQ failures
 
 1. Go to AWS Console → SQS → `weather-extractor-dlq`
