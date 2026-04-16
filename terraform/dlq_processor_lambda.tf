@@ -1,12 +1,18 @@
+data "aws_s3_object" "dlq_processor_zip" {
+  bucket = aws_s3_bucket.lambda_code.id
+  key    = "dlq-processor.zip"
+}
+
 resource "aws_lambda_function" "dlq_processor" {
-  s3_bucket     = aws_s3_bucket.lambda_code.id
-  s3_key        = "dlq-processor.zip"
-  function_name = "${var.lambda_function_name}-dlq-processor"
-  role          = aws_iam_role.dlq_processor_role.arn
-  handler       = "dist/handler.handler"
-  runtime       = "nodejs20.x"
-  timeout       = 30
-  memory_size   = 128
+  s3_bucket        = aws_s3_bucket.lambda_code.id
+  s3_key           = "dlq-processor.zip"
+  function_name    = "${var.lambda_function_name}-dlq-processor"
+  role             = aws_iam_role.dlq_processor_role.arn
+  handler          = "dist/handler.handler"
+  runtime          = "nodejs20.x"
+  timeout          = 30
+  memory_size      = 128
+  source_code_hash = data.aws_s3_object.dlq_processor_zip.etag
 
   environment {
     variables = {
