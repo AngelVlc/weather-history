@@ -57,6 +57,15 @@ resource "aws_iam_role_policy" "dlq_processor_ses_policy" {
           "ses:SendTemplatedEmail"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Resource = aws_sqs_queue.dlq.arn
       }
     ]
   })
