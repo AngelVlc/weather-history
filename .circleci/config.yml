@@ -68,6 +68,7 @@ jobs:
             cd ../dlq-processor
             yarn install
             yarn build
+            zip -r dist.zip dist/
       - aws-cli/setup:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
