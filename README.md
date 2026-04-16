@@ -112,39 +112,33 @@ yarn dev:stop
 
 ### Prerequisites
 
-1. Create S3 bucket for Lambda deployment:
-   ```bash
-   aws s3 mb s3://weather-history-lambda
-   ```
-
-2. Create S3 bucket for Terraform state:
+1. Create S3 bucket for Terraform state:
    ```bash
    aws s3 mb s3://weather-history-terraform-state
    ```
 
-3. Configure CircleCI OIDC (see [CircleCI OIDC Setup](#circleci-oidc-setup))
+2. Configure CircleCI OIDC (see [CircleCI OIDC Setup](#circleci-oidc-setup))
 
 ### Deploy
 
 The deployment is automated via CircleCI on push to `main`:
 
 1. **test** - Runs unit tests
-2. **deploy-lambda** - Builds and uploads Lambda package to S3
-3. **deploy-terraform** - Applies Terraform configuration
+2. **deploy-terraform** - Creates/updates AWS infrastructure
+3. **deploy-lambda** - Builds and uploads Lambda package to S3
 
 ### Manual Deployment
 
 ```bash
-# Deploy Lambda
-cd packages/lambda-weather-extractor
-yarn build
-sam deploy
-
 # Deploy Terraform
 cd terraform
 terraform init
 terraform plan
 terraform apply
+
+# Deploy Lambda
+cd packages/lambda-weather-extractor
+yarn build
 ```
 
 ## Configuration
@@ -210,57 +204,127 @@ In AWS Console → IAM → Roles → Create role:
 - **Subject**: `org/{ORG_ID}/project/{PROJECT_ID}/*`
 - **Permissions**: Attach the required policies (see below)
 
-### 2. Required Policies
-
-**For deploy-lambda:**
+### 2. Required Policy
 
 ```json
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
-      "Resource": [
-        "arn:aws:s3:::weather-history-lambda",
-        "arn:aws:s3:::weather-history-lambda/*"
-      ]
-    }
-  ]
-}
-```
-
-**For deploy-terraform:**
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"],
-      "Resource": [
-        "arn:aws:s3:::weather-history-terraform-state",
-        "arn:aws:s3:::weather-history-terraform-state/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
-        "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem", "dynamodb:ListTables"
-      ],
-      "Resource": "arn:aws:dynamodb:*:*:table/weather-history-*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "iam:*Role", "iam:*Policy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
-        "lambda:*", "logs:*", "events:*", "sqs:*"
-      ],
-      "Resource": "*"
-    }
-  ]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:ListBucket",
+                "s3:CreateBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::weather-history-terraform-state",
+                "arn:aws:s3:::weather-history-terraform-state/*",
+                "arn:aws:s3:::weather-history-lambda",
+                "arn:aws:s3:::weather-history-lambda/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:CreateTable",
+                "dynamodb:DeleteTable",
+                "dynamodb:DescribeTable",
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:ListTables",
+                "dynamodb:DescribeTimeToLive",
+                "dynamodb:UpdateTimeToLive"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:*:*:table/weather-data",
+                "arn:aws:dynamodb:*:*:table/weather-data/index/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:GetRole",
+                "iam:PassRole",
+                "iam:CreatePolicy",
+                "iam:DeletePolicy",
+                "iam:GetPolicy",
+                "iam:CreatePolicyVersion",
+                "iam:DeletePolicyVersion",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:ListRolePolicies",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListPolicies",
+                "iam:ListRoles"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:CreateFunction",
+                "lambda:DeleteFunction",
+                "lambda:GetFunction",
+                "lambda:UpdateFunctionConfiguration",
+                "lambda:UpdateFunctionCode",
+                "lambda:InvokeFunction",
+                "lambda:AddPermission",
+                "lambda:RemovePermission",
+                "lambda:GetFunctionConfiguration"
+            ],
+            "Resource": "arn:aws:lambda:*:*:function:weather-extractor"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:DeleteLogGroup",
+                "logs:DescribeLogGroups",
+                "logs:PutRetentionPolicy"
+            ],
+            "Resource": [
+                "arn:aws:logs:*:*:log-group:/aws/lambda/weather-extractor*",
+                "arn:aws:logs:*:*:log-group:/aws/lambda/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "events:PutRule",
+                "events:DeleteRule",
+                "events:DescribeRule",
+                "events:PutTargets",
+                "events:RemoveTargets",
+                "events:EnableRule",
+                "events:DisableRule",
+                "events:ListRules",
+                "events:ListTargetsByRule",
+                "events:ListTagsForResource"
+            ],
+            "Resource": "arn:aws:events:*:*:rule/weather-history-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sqs:CreateQueue",
+                "sqs:DeleteQueue",
+                "sqs:GetQueueUrl",
+                "sqs:GetQueueAttributes",
+                "sqs:SetQueueAttributes",
+                "sqs:TagQueue",
+                "sqs:ListQueues",
+                "sqs:ListQueueTags",
+                "sqs:PurgeQueue"
+            ],
+            "Resource": "arn:aws:sqs:*:*:weather-extractor-*"
+        }
+    ]
 }
 ```
 
