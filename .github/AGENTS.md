@@ -89,3 +89,4 @@ This project uses CircleCI OIDC for AWS authentication instead of static credent
 2. **New Role**: Create a new IAM role for each project with project-specific trust policy
 3. **Environment Variable**: Add `OIDC_ROLE_ARN` in CircleCI project settings
 4. **No Static Credentials**: Never add `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY`
+5. **Terraform State Bucket**: Create S3 bucket for Terraform state before first deployment (e.g., `aws s3 mb s3://my-project-terraform-state`)
