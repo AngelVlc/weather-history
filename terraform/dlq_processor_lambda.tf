@@ -66,6 +66,15 @@ resource "aws_iam_role_policy" "dlq_processor_ses_policy" {
           "sqs:GetQueueAttributes"
         ]
         Resource = aws_sqs_queue.dlq.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "*"
       }
     ]
   })
