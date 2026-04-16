@@ -286,12 +286,12 @@ In AWS Console → IAM → Roles → Create role:
                 "logs:CreateLogGroup",
                 "logs:DeleteLogGroup",
                 "logs:DescribeLogGroups",
-                "logs:PutRetentionPolicy"
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents",
+                "logs:PutRetentionPolicy",
+                "logs:FilterLogEvents"
             ],
-            "Resource": [
-                "arn:aws:logs:*:*:log-group:/aws/lambda/weather-extractor*",
-                "arn:aws:logs:*:*:log-group:/aws/lambda/*"
-            ]
+            "Resource": "*"
         },
         {
             "Effect": "Allow",

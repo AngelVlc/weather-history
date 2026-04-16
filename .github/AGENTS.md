@@ -82,6 +82,7 @@ This project uses CircleCI OIDC for AWS authentication instead of static credent
 1. Check what resources the job needs to access
 2. Document the required IAM permissions
 3. Update the OIDC role trust policy to allow the specific project: `org/{ORG_ID}/project/{PROJECT_ID}/*`
+4. **Always update the IAM policy in README.md** - this is the source of truth for AWS permissions
 
 ### CircleCI Orbs
 
