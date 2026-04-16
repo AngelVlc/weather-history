@@ -166,10 +166,12 @@ territories:
 
 **DynamoDB Table: weather-data**
 
+Each territory event creates one record per station (multiple records share the same pk):
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| pk | String | `territory#date` (e.g., `c20#2026-04-14`) |
-| sk | String | Station ID |
+| pk | String | `territory#date` (e.g., `c20#2026-04-15`) |
+| sk | String | Station ID (e.g., `c20m236e01`) |
 | territory | String | Territory code (e.g., `c20`) |
 | territoryName | String | Territory name (e.g., `Ribera Alta`) |
 | location | String | Location of interest (e.g., `Sumacarcer`) |
