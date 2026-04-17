@@ -123,7 +123,13 @@ DYNAMODB_ENDPOINT=http://localhost:8000 \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 
-# Production (AWS)
+# Production (AWS with profile)
+AWS_PROFILE=personal AWS_REGION=us-east-1 \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn populate --start-date 2025-04-01 --end-date 2025-04-15
+
+# Production (with environment variables)
+AWS_ACCESS_KEY_ID=xxx AWS_SECRET_ACCESS_KEY=xxx AWS_REGION=us-east-1 \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 ```
@@ -134,6 +140,8 @@ yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 |--------|-------------|----------|
 | `--start-date` | Start date (YYYY-MM-DD) | Yes |
 | `--end-date` | End date (YYYY-MM-DD), defaults to start-date | No |
+| `AWS_PROFILE` | AWS profile for production | No |
+| `AWS_REGION` | AWS region (required for production) | No |
 | `DYNAMODB_ENDPOINT` | DynamoDB endpoint (local only) | No |
 | `DYNAMODB_TABLE_NAME` | DynamoDB table name | No (default: weather-data) |
 
@@ -147,8 +155,15 @@ DYNAMODB_ENDPOINT=http://localhost:8000 \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn query
 
-# Production
-DYNAMODB_TABLE_NAME=weather-data yarn query
+# Production (with AWS profile)
+AWS_PROFILE=personal AWS_REGION=us-east-1 \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn query
+
+# Production (with environment variables)
+AWS_ACCESS_KEY_ID=xxx AWS_SECRET_ACCESS_KEY=xxx AWS_REGION=us-east-1 \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn query
 
 # Custom page size
 DYNAMODB_TABLE_NAME=weather-data yarn query --page-size 5
