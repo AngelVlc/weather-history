@@ -13,7 +13,9 @@ export function parseWeatherTable(
     const cells = $(row).find('td');
     if (cells.length >= 5) {
       const stationLink = $(cells[0]).find('a');
-      const stationName = stationLink.clone().children().remove().end().text().trim();
+      const mainName = stationLink.clone().children().remove().end().text().trim();
+      const spanText = stationLink.find('.rEstaDmxo').text().trim();
+      const stationName = spanText ? `${mainName} (${spanText})` : mainName;
 
       const stationIdMatch = stationLink.attr('href')?.match(/id=(.+)$/);
       const stationId = stationIdMatch ? stationIdMatch[1] : '';

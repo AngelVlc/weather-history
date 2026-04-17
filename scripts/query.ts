@@ -20,127 +20,136 @@ const client = new DynamoDBClient(clientConfig);
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'weather-data';
 
 interface Args {
-  limit: number;
+  'page-size': number;
   'start-date'?: string;
   'end-date'?: string;
   territory?: string;
   order?: 'asc' | 'desc';
+  raw?: boolean;
   help: boolean;
 }
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
+  terminal: true,
 });
 
-async function query(
-  limit: number = 10,
-  startKey?: Record<string, any>,
+let allItems: any[] = [];
+let currentIndex = 0;
+
+async function fetchAllData(
   territory?: string,
   startDate?: string,
   endDate?: string,
   order: 'asc' | 'desc' = 'desc'
-): Promise<{ hasMore: boolean; lastKey?: Record<string, any> }> {
-  const useIndex = !territory && (startDate || endDate) && order === 'asc';
-  const useMainTableWithFilters = territory || startDate || endDate;
+): Promise<void> {
+  let lastKey: Record<string, any> | undefined;
+  const items: any[] = [];
 
-  const params: any = {
-    TableName: TABLE_NAME,
-    Limit: useIndex ? limit : (order === 'asc' ? 1000 : limit),
-    ScanIndexForward: order === 'asc',
-  };
-
-  if (useIndex) {
-    params.IndexName = 'date-index';
-    params.KeyConditionExpression = '#d BETWEEN :startDate AND :endDate';
-    params.ExpressionAttributeNames = { '#d': 'date' };
-    params.ExpressionAttributeValues = {
-      ':startDate': { S: startDate || '' },
-      ':endDate': { S: endDate || startDate || '' },
+  do {
+    const params: any = {
+      TableName: TABLE_NAME,
+      Limit: 1000,
     };
-  } else if (useMainTableWithFilters) {
-    const filterParts: string[] = [];
+
+    const filters: string[] = [];
     const values: Record<string, any> = {};
 
     if (territory) {
-      filterParts.push('begins_with(pk, :territory)');
+      filters.push('begins_with(pk, :territory)');
       values[':territory'] = { S: `${territory}#` };
     }
     if (startDate) {
-      filterParts.push('pk >= :startPk');
+      filters.push('pk >= :startPk');
       values[':startPk'] = { S: `c20#${startDate}` };
     }
     if (endDate) {
-      filterParts.push('pk <= :endPk');
+      filters.push('pk <= :endPk');
       values[':endPk'] = { S: `c20#${endDate}` };
     }
 
-    params.FilterExpression = filterParts.join(' AND ');
-    params.ExpressionAttributeValues = values;
-  }
+    if (filters.length > 0) {
+      params.FilterExpression = filters.join(' AND ');
+      params.ExpressionAttributeValues = values;
+    }
 
-  if (startKey) {
-    params.ExclusiveStartKey = startKey;
-  }
+    if (lastKey) {
+      params.ExclusiveStartKey = lastKey;
+    }
 
-  let result: ScanCommandOutput;
-  try {
     const command = new ScanCommand(params);
-    result = await client.send(command);
-  } catch (error: any) {
-    if (error.name === 'ValidationException' && error.message?.includes('index')) {
-      params.IndexName = undefined;
-      params.Limit = limit;
-      if (startDate) {
-        params.FilterExpression = (params.FilterExpression || '') + (params.FilterExpression ? ' AND ' : '') + 'pk >= :startPk';
-        params.ExpressionAttributeValues = params.ExpressionAttributeValues || {};
-        params.ExpressionAttributeValues[':startPk'] = { S: `c20#${startDate}` };
-      }
-      if (endDate) {
-        params.FilterExpression = (params.FilterExpression || '') + (params.FilterExpression ? ' AND ' : '') + 'pk <= :endPk';
-        params.ExpressionAttributeValues[':endPk'] = { S: `c20#${endDate}` };
-      }
-      const command = new ScanCommand(params);
-      result = await client.send(command);
-    } else {
-      throw error;
+    const result: ScanCommandOutput = await client.send(command);
+
+    if (result.Items) {
+      items.push(...result.Items);
     }
+
+    lastKey = result.LastEvaluatedKey;
+  } while (lastKey);
+
+  items.sort((a, b) => {
+    const pkA = a.pk?.S || '';
+    const pkB = b.pk?.S || '';
+    return order === 'desc' ? pkB.localeCompare(pkA) : pkA.localeCompare(pkB);
+  });
+
+  allItems = items;
+}
+
+function getNextPage(pageSize: number): { items: any[]; hasMore: boolean } {
+  const items = allItems.slice(currentIndex, currentIndex + pageSize);
+  currentIndex += pageSize;
+  const hasMore = currentIndex < allItems.length;
+  return { items, hasMore };
+}
+
+async function query(
+  pageSize: number = 10,
+  territory?: string,
+  startDate?: string,
+  endDate?: string,
+  order: 'asc' | 'desc' = 'desc',
+  raw: boolean = false
+): Promise<{ hasMore: boolean }> {
+  if (allItems.length === 0) {
+    console.log('  Fetching all data and sorting...');
+    await fetchAllData(territory, startDate, endDate, order);
+    console.log(`  Loaded ${allItems.length} records`);
   }
 
-  if (result.Items && result.Items.length > 0) {
-    result.Items.sort((a, b) => {
-      const pkA = a.pk?.S || '';
-      const pkB = b.pk?.S || '';
-      return order === 'desc' ? pkB.localeCompare(pkA) : pkA.localeCompare(pkB);
-    });
+  const { items, hasMore } = getNextPage(pageSize);
 
-    const itemsToShow = order === 'desc' ? result.Items.slice(0, limit) : result.Items;
-
+  if (items.length > 0) {
     console.log('\n--- Records ---\n');
-    for (const item of itemsToShow) {
-      const pk = item.pk?.S || '';
-      const sk = item.sk?.S || '';
-      const territory = item.territory?.S || '';
-      const territoryName = item.territoryName?.S || '';
-      const date = item.date?.S || '';
-      const stationName = item.stationName?.S || '';
-      const precipitation = item.precipitation?.N || '0';
-      const tempMin = item.tempMin?.N || '0';
-      const tempMax = item.tempMax?.N || '0';
-      const tempAvg = item.tempAvg?.N || '0';
+    for (const item of items) {
+      if (raw) {
+        console.log(JSON.stringify(item, null, 2));
+        console.log('');
+      } else {
+        const pk = item.pk?.S || '';
+        const sk = item.sk?.S || '';
+        const territory = item.territory?.S || '';
+        const territoryName = item.territoryName?.S || '';
+        const date = item.date?.S || '';
+        const stationName = item.stationName?.S || '';
+        const precipitation = item.precipitation?.N || '0';
+        const tempMin = item.tempMin?.N || '0';
+        const tempMax = item.tempMax?.N || '0';
+        const tempAvg = item.tempAvg?.N || '0';
 
-      console.log(`PK: ${pk}`);
-      console.log(`  SK: ${sk}`);
-      console.log(`  Territory: ${territory} (${territoryName})`);
-      console.log(`  Date: ${date}`);
-      console.log(`  Station: ${stationName}`);
-      console.log(`  Precipitation: ${precipitation}mm`);
-      console.log(`  Temp: ${tempMin}°C / ${tempMax}°C / ${tempAvg}°C`);
-      console.log('');
+        console.log(`PK: ${pk}`);
+        console.log(`  SK: ${sk}`);
+        console.log(`  Territory: ${territory} (${territoryName})`);
+        console.log(`  Date: ${date}`);
+        console.log(`  Station: ${stationName}`);
+        console.log(`  Precipitation: ${precipitation}mm`);
+        console.log(`  Temp: ${tempMin}°C / ${tempMax}°C / ${tempAvg}°C`);
+        console.log('');
+      }
     }
 
-    const hasMore = !!result.LastEvaluatedKey;
-    return { hasMore, lastKey: result.LastEvaluatedKey };
+    return { hasMore };
   }
 
   console.log('No records found.\n');
@@ -149,7 +158,7 @@ async function query(
 
 async function main() {
   const argv = require('yargs')
-    .option('limit', {
+    .option('page-size', {
       describe: 'Number of records per page',
       type: 'number',
       default: 10,
@@ -172,44 +181,53 @@ async function main() {
       choices: ['asc', 'desc'],
       default: 'desc',
     })
+    .option('raw', {
+      describe: 'Show raw DynamoDB items',
+      type: 'boolean',
+      default: false,
+    })
     .help()
     .alias('h', 'help')
     .parseSync() as Args;
 
   console.log('DynamoDB Endpoint:', process.env.DYNAMODB_ENDPOINT || 'AWS (production)');
   console.log('DynamoDB Table:', TABLE_NAME);
-  console.log(`Limit per page: ${argv.limit}`);
+  console.log(`Page size: ${argv['page-size']}`);
   if (argv.territory) console.log(`Territory: ${argv.territory}`);
   if (argv['start-date']) console.log(`Start Date: ${argv['start-date']}`);
   if (argv['end-date']) console.log(`End Date: ${argv['end-date']}`);
   console.log(`Order: ${argv.order}`);
+  if (argv.raw) console.log(`Raw: true`);
   console.log('\nPress Enter for next page, "q" to quit.\n');
 
-  let lastKey: Record<string, any> | undefined = undefined;
   let shouldQuit = false;
 
   while (!shouldQuit) {
-    const { hasMore, lastKey: newLastKey } = await query(
-      argv.limit,
-      lastKey,
+    const { hasMore } = await query(
+      argv['page-size'],
       argv.territory,
       argv['start-date'],
       argv['end-date'],
-      argv.order
+      argv.order,
+      argv.raw
     );
-    lastKey = newLastKey;
 
     if (!hasMore) {
       console.log('--- End of results ---\n');
       break;
     }
 
-    const answer = await new Promise<string>((resolve) => {
-      rl.question('Next page? (Enter/q): ', resolve);
-    });
+    try {
+      const answer = await new Promise<string>((resolve) => {
+        rl.question('Next page? (Enter/q): ', resolve);
+      });
 
-    if (answer.toLowerCase() === 'q') {
-      shouldQuit = true;
+      if (answer.toLowerCase() === 'q') {
+        shouldQuit = true;
+      }
+    } catch {
+      console.log('(input closed, exiting)\n');
+      break;
     }
   }
 
@@ -218,6 +236,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Query failed:', error);
+  console.error('Query failed:', error.message || error);
   process.exit(1);
 });

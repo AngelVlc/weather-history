@@ -151,7 +151,7 @@ yarn query
 DYNAMODB_TABLE_NAME=weather-data yarn query
 
 # Custom page size
-DYNAMODB_TABLE_NAME=weather-data yarn query --limit 5
+DYNAMODB_TABLE_NAME=weather-data yarn query --page-size 5
 
 # Filter by territory and date range
 DYNAMODB_TABLE_NAME=weather-data yarn query \
@@ -161,17 +161,21 @@ DYNAMODB_TABLE_NAME=weather-data yarn query \
 
 # Ascending order (oldest first)
 DYNAMODB_TABLE_NAME=weather-data yarn query --order asc
+
+# Raw DynamoDB output (for debugging)
+DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 ```
 
 ### Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--limit` | Number of records per page | 10 |
+| `--page-size` | Number of records per page | 10 |
 | `--territory` | Filter by territory ID | all |
 | `--start-date` | Filter by start date (YYYY-MM-DD) | - |
 | `--end-date` | Filter by end date (YYYY-MM-DD) | - |
 | `--order` | Sort order (`asc` or `desc`) | desc |
+| `--raw` | Show raw DynamoDB items | false |
 
 **Controls:**
 - Press Enter to see next page
