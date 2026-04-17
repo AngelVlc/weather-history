@@ -14,6 +14,20 @@ resource "aws_dynamodb_table" "weather_data" {
     type = "S"
   }
 
+  attribute {
+    name = "date"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "date-index"
+    hash_key        = "date"
+    range_key       = "pk"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+
   tags = {
     Name        = "weather-data"
     Environment = "production"

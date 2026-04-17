@@ -106,6 +106,77 @@ yarn dev:down
 yarn dev:stop
 ```
 
+## Populate Database
+
+Use the populate script to insert historical data into DynamoDB.
+
+### Usage
+
+```bash
+# Single day (local)
+DYNAMODB_ENDPOINT=http://localhost:8000 \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn populate --start-date 2025-04-16
+
+# Date range (local)
+DYNAMODB_ENDPOINT=http://localhost:8000 \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn populate --start-date 2025-04-01 --end-date 2025-04-15
+
+# Production (AWS)
+DYNAMODB_TABLE_NAME=weather-data \
+yarn populate --start-date 2025-04-01 --end-date 2025-04-15
+```
+
+### Options
+
+| Option | Description | Required |
+|--------|-------------|----------|
+| `--start-date` | Start date (YYYY-MM-DD) | Yes |
+| `--end-date` | End date (YYYY-MM-DD), defaults to start-date | No |
+| `DYNAMODB_ENDPOINT` | DynamoDB endpoint (local only) | No |
+| `DYNAMODB_TABLE_NAME` | DynamoDB table name | No (default: weather-data) |
+
+### Query Data
+
+Use the query script to view stored data with pagination.
+
+```bash
+# Local
+DYNAMODB_ENDPOINT=http://localhost:8000 \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn query
+
+# Production
+DYNAMODB_TABLE_NAME=weather-data yarn query
+
+# Custom page size
+DYNAMODB_TABLE_NAME=weather-data yarn query --limit 5
+
+# Filter by territory and date range
+DYNAMODB_TABLE_NAME=weather-data yarn query \
+  --territory c20 \
+  --start-date 2026-04-01 \
+  --end-date 2026-04-15
+
+# Ascending order (oldest first)
+DYNAMODB_TABLE_NAME=weather-data yarn query --order asc
+```
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--limit` | Number of records per page | 10 |
+| `--territory` | Filter by territory ID | all |
+| `--start-date` | Filter by start date (YYYY-MM-DD) | - |
+| `--end-date` | Filter by end date (YYYY-MM-DD) | - |
+| `--order` | Sort order (`asc` or `desc`) | desc |
+
+**Controls:**
+- Press Enter to see next page
+- Press "q" to quit
+
 ## Deployment
 
 ### Prerequisites

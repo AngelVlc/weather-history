@@ -63,6 +63,13 @@ weather-history/
 - Commit messages: concise, focus on the "why"
 - Feature branches: short-lived, merged via PR
 
+## Scripts
+
+When modifying or adding scripts in the `scripts/` directory:
+- **Always update the README.md** with usage instructions
+- Include all available options in the documentation
+- Provide examples for common use cases
+
 ## CircleCI OIDC Authentication
 
 This project uses CircleCI OIDC for AWS authentication instead of static credentials.
