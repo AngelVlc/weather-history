@@ -18,7 +18,9 @@ Daily weather data extraction and storage for historical analysis.
 - [Populate Database](#populate-database)
   - [Usage](#usage)
   - [Options](#options)
-  - [Query Data](#query-data)
+- [Query Data](#query-data)
+  - [Usage](#usage-1)
+  - [Options](#options-1)
 - [Deployment](#deployment)
   - [Prerequisites](#prerequisites-1)
   - [Deploy](#deploy)
@@ -183,9 +185,11 @@ yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 | `DYNAMODB_ENDPOINT` | DynamoDB endpoint (local only) | No |
 | `DYNAMODB_TABLE_NAME` | DynamoDB table name | No (default: weather-data) |
 
-### Query Data
+## Query Data
 
 Use the query script to view stored data with pagination.
+
+### Usage
 
 ```bash
 # Local
@@ -235,42 +239,6 @@ DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 - Press "q" to quit
 
 ## Deployment
-
-### Prerequisites
-
-1. Create S3 bucket for Terraform state:
-   ```bash
-   aws s3 mb s3://weather-history-terraform-state
-   ```
-
-2. Configure CircleCI OIDC (see [CircleCI OIDC Setup](#circleci-oidc-setup))
-
-### Deploy
-
-The deployment is automated via CircleCI on push to `main`:
-
-1. **test** - Runs unit tests
-2. **deploy-terraform** - Creates/updates AWS infrastructure
-3. **deploy-lambda** - Builds and uploads Lambda package to S3
-
-### Manual Deployment
-
-```bash
-# Deploy Terraform
-cd terraform
-terraform init
-terraform plan
-terraform apply
-
-# Deploy Lambda
-cd packages/lambda-weather-extractor
-yarn build
-
-# Or from root workspace
-yarn workspace @weather-history/lambda-weather-extractor build
-```
-
-## Configuration
 
 Territories are configured in `config/territories.yaml`:
 
