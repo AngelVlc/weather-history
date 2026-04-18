@@ -12,7 +12,6 @@ Daily weather data extraction and storage for historical analysis.
   - [DynamoDB Local](#dynamodb-local)
   - [Create Table](#create-table)
   - [Lambda Extractor](#lambda-extractor)
-  - [Verify Data](#verify-data)
   - [Weather API](#weather-api)
   - [Weather UI](#weather-ui)
 - [Populate Database](#populate-database)
