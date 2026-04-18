@@ -12,7 +12,6 @@ Daily weather data extraction and storage for historical analysis.
   - [DynamoDB Local](#dynamodb-local)
   - [Create Table](#create-table)
   - [Lambda Extractor](#lambda-extractor)
-  - [Verify Data](#verify-data)
   - [API Reference](#api-reference)
   - [Weather UI](#weather-ui)
 - [Populate Database](#populate-database)
@@ -131,19 +130,6 @@ cd packages/lambda-weather-extractor && \
   AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
   yarn invoke
 ```
-
-### Verify Data
-
-After invoking the Lambda, verify data was saved correctly:
-
-```bash
-DYNAMODB_ENDPOINT=http://localhost:8000 \
-  DYNAMODB_TABLE_NAME=weather-data \
-  AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
-  yarn dev:verify
-```
-
-**Note:** `host.docker.internal` is used for invoke (Lambda runs in Docker), and `localhost` for verify (script runs on host).
 
 ### Weather API
 
