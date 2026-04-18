@@ -97,16 +97,16 @@ packages/weather-ui/
 - Total: ~$2-4/month
 
 ## Phase 1: Backend
-- [ ] Create new package `packages/weather-api`
-- [ ] Lambda `weather-api` to query DynamoDB
-- [ ] Endpoint GET /stations (returns station list)
-- [ ] Endpoint GET /stations/{stationId}?days=7 (returns chart data)
-- [ ] Add Cache-Control headers to responses
+- [x] Create new package `packages/weather-api`
+- [x] Lambda `weather-api` to query DynamoDB
+- [x] Endpoint GET /stations (returns station list)
+- [x] Endpoint GET /stations/{stationId}?days=7 (returns chart data)
+- [x] Add Cache-Control headers to responses
 - [ ] Terraform: create Lambda + Function URL
 - [ ] Terraform: create CloudFront distribution for API
 - [ ] Add cloudfront:CreateInvalidation permission to Lambda role
-- [ ] Tests for Lambda
-- [ ] SAM template for local invoke (sam local invoke)
+- [x] Tests for Lambda
+- [x] SAM template for local invoke (sam local invoke)
 - [ ] Add to docker-compose for local development
 
 ## Phase 2: CloudFront Invalidation
@@ -114,19 +114,18 @@ packages/weather-ui/
 - [ ] Create script `scripts/invalidate-cache.ts` for manual invalidation
 
 ## Phase 3: Frontend
-- [ ] Create package `packages/weather-ui`
-- [ ] Initialize Vite + React + TypeScript
-- [ ] Configure Tailwind CSS
-- [ ] Setup react-router-dom
-- [ ] Implement Landing page (station list)
-- [ ] Implement Station page (charts)
-- [ ] Integrate with Lambda API via CloudFront
-- [ ] Add global styles and layout
+- [x] Create package `packages/weather-ui`
+- [x] Initialize Vite + React + TypeScript
+- [x] Configure Tailwind CSS
+- [x] Setup react-router-dom
+- [x] Implement Landing page (station list)
+- [x] Implement Station page (charts)
+- [ ] Integrate with Lambda API via CloudFront (needs deployment)
+- [x] Add global styles and layout
 - [ ] Tests
 
 ## Phase 4: Deployment
-- [ ] Terraform: S3 bucket for static hosting
-- [ ] Terraform: CloudFront distribution + ACM certificate
-- [ ] Terraform: Route 53 alias (optional, for custom domain)
-- [ ] CircleCI: add build-frontend job
-- [ ] CircleCI: add deploy-frontend job
+- [x] Terraform: S3 bucket for static hosting
+- [x] Terraform: CloudFront distribution + ACM certificate
+- [x] CircleCI: add build-frontend job
+- [x] CircleCI: add deploy-frontend job
