@@ -241,26 +241,48 @@ DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 
 ## Deployment
 
-Territories are configured in `config/territories.yaml`:
+### Prerequisites
 
-```yaml
-territories:
-  - id: c20
-    name: Ribera Alta
-    location: Sumacarcer
-    cronHour: 4
-    timezone: Europe/Madrid
-    stationIds:
-      - c20m236e01
-      - c20m236e02
-      - c20m236e03
+1. Create S3 bucket for Terraform state:
+   ```bash
+   aws s3 mb s3://weather-history-terraform-state
+   ```
+
+2. Configure CircleCI OIDC (see [CircleCI OIDC Setup](#circleci-oidc-setup))
+
+### Deploy
+
+The deployment is automated via CircleCI on push to `main`:
+
+1. **test** - Runs unit tests
+2. **deploy-terraform-infra** - Creates infrastructure (S3, DynamoDB, IAM, EventBridge)
+3. **deploy-lambda** - Builds and uploads Lambda code to S3
+4. **deploy-terraform-lambda** - Creates Lambda functions and triggers
+5. **deploy-terraform-dlq-processor** - Creates DLQ processor Lambda
+6. **build-frontend** - Builds React frontend
+7. **deploy-frontend** - Deploys frontend to S3 and invalidates CloudFront
+
+### Manual Deployment
+
+```bash
+# Deploy Terraform infrastructure
+cd terraform
+terraform init
+terraform plan
+terraform apply -target=aws_s3_bucket.lambda_code
+terraform apply -target=aws_dynamodb_table.weather_data
+terraform apply -target=aws_iam_role.lambda_role
+
+# Deploy Lambda
+cd packages/lambda-weather-extractor
+yarn build
+zip -r dist.zip dist/
+aws s3 cp dist.zip s3://weather-history-lambda/lambda.zip
+
+# Deploy Lambda via Terraform
+cd terraform
+terraform apply -target=aws_lambda_function.weather_extractor
 ```
-
-- `id`: Territory code (used for API request)
-- `name`: Territory name
-- `location`: Locality of interest
-- `cronHour`: Hour to trigger Lambda (UTC)
-- `stationIds`: List of station IDs to save (from avamet.org)
 
 ## Database
 
