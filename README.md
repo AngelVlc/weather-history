@@ -136,7 +136,7 @@ cd packages/lambda-weather-extractor && \
 ### Weather API
 
 ```bash
-cd packages/weather-api && sam local start-api --docker-network weather-history-network
+cd packages/weather-api && sam local invoke WeatherApiFunction --docker-network weather-history_weather-history-network
 ```
 
 ### Weather UI

@@ -11,4 +11,4 @@ capabilities = "CAPABILITY_IAM"
 
 [default.local]
 [default.local.invoke]
-parameters = "--docker-network weather-history-network"
+parameters = "--docker-network weather-history_weather-history-network"
