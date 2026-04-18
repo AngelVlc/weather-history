@@ -8,14 +8,13 @@ Daily weather data extraction and storage for historical analysis.
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
-- [Local Development](#local-development)
-  - [Start DynamoDB Local](#start-dynamodb-local)
+- [Development](#development)
+  - [DynamoDB Local](#dynamodb-local)
   - [Create Table](#create-table)
-  - [Weather API](#weather-api-port-3000)
-  - [Weather UI](#weather-ui-port-5173)
-  - [Lambda Extractor](#lambda-extractor-optional)
+  - [Lambda Extractor](#lambda-extractor)
   - [Verify Data](#verify-data)
-  - [Stop DynamoDB Local](#stop-dynamodb-local)
+  - [API Reference](#api-reference)
+  - [Weather UI](#weather-ui)
 - [Populate Database](#populate-database)
   - [Usage](#usage)
   - [Options](#options)
@@ -27,7 +26,7 @@ Daily weather data extraction and storage for historical analysis.
 - [Configuration](#configuration)
 - [Data Model](#data-model)
 - [Global Secondary Indexes](#global-secondary-indexes)
-- [Weather API](#weather-api)
+- [API Reference](#api-reference)
   - [Endpoints](#endpoints)
   - [Response Formats](#response-formats)
   - [Caching](#caching)
@@ -54,10 +53,14 @@ Daily weather data extraction and storage for historical analysis.
 - AWS Lambda
 - AWS DynamoDB
 - AWS EventBridge
+- AWS CloudFront
 - Terraform
 - CircleCI
 - SAM CLI (local development)
 - Docker (DynamoDB Local)
+- React + Vite
+- Tailwind CSS
+- Chart.js
 
 ## Project Structure
 
@@ -99,12 +102,18 @@ weather-history/
 - SAM CLI
 - Terraform
 
-## Local Development
+## Development
 
-### Start DynamoDB Local
+### DynamoDB Local
 
 ```bash
+# Start
 yarn dev:up
+
+# Stop
+yarn dev:down
+# or
+yarn dev:stop
 ```
 
 ### Create Table
@@ -113,19 +122,7 @@ yarn dev:up
 yarn dev:setup
 ```
 
-### Weather API (port 3000)
-
-```bash
-cd packages/weather-api && sam local start-api --docker-network weather-history-network
-```
-
-### Weather UI (port 5173)
-
-```bash
-cd packages/weather-ui && npm run dev
-```
-
-### Lambda Extractor (optional)
+### Lambda Extractor
 
 ```bash
 cd packages/lambda-weather-extractor && \
@@ -148,12 +145,16 @@ DYNAMODB_ENDPOINT=http://localhost:8000 \
 
 **Note:** `host.docker.internal` is used for invoke (Lambda runs in Docker), and `localhost` for verify (script runs on host).
 
-### Stop DynamoDB Local
+### Weather API
 
 ```bash
-yarn dev:down
-# or
-yarn dev:stop
+cd packages/weather-api && sam local start-api --docker-network weather-history-network
+```
+
+### Weather UI
+
+```bash
+cd packages/weather-ui && npm run dev
 ```
 
 ## Populate Database
@@ -336,7 +337,7 @@ The table has one GSI for efficient date-based queries:
 
 Note: This GSI is currently used for backend queries. A future GSI (`station-date-index`) may be added to support queries by station ID with date range (e.g., 1 year of data for a specific station).
 
-## Weather API
+## API Reference
 
 The weather API is a Lambda function that serves weather data to the frontend. It's accessible via a Lambda Function URL.
 

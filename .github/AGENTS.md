@@ -6,10 +6,10 @@
 
 ## Project
 - Name: weather-history
-- Purpose: Daily weather data extraction (precipitation + temperatures) from public web to AWS database
+- Purpose: Daily weather data extraction (precipitation + temperatures) from public web to AWS database, with web UI for visualization
 - Data stored: precipitation (mm), min temp, max temp, avg temp
-- Stack: TypeScript, AWS Lambda, Terraform, CircleCI, SAM CLI
-- Tests: Unit tests for parser
+- Stack: TypeScript, AWS Lambda, DynamoDB, EventBridge, CloudFront, Terraform, CircleCI, React + Vite, Tailwind CSS, Chart.js
+- Tests: Unit tests for Lambda functions
 
 ## Architecture
 - Source: AVAMET (https://www.avamet.org)
@@ -50,8 +50,10 @@ Example directory structure for the monorepo:
 ```
 weather-history/
 ├── packages/
-│   ├── lambda-weather-extractor/
-│   └── dlq-processor/
+│   ├── lambda-weather-extractor/    # Main Lambda function (data extraction)
+│   ├── dlq-processor/               # DLQ notification Lambda
+│   ├── weather-api/                 # API Lambda for frontend
+│   └── weather-ui/                  # Frontend (React + Vite)
 ├── terraform/
 ├── config/
 │   └── territories.yaml
@@ -62,6 +64,15 @@ weather-history/
 - Comments in code: none unless explicitly requested
 - Commit messages: concise, focus on the "why"
 - Feature branches: short-lived, merged via PR
+
+## README Organization
+
+When adding new features or making significant changes:
+- **Keep the README organized** - don't just append sections without structure
+- Use the Table of Contents to maintain an organized hierarchy
+- Group related content together (e.g., all local development in one section)
+- When adding new sections, consider where they fit in the logical flow:
+  - Prerequisites → Development → Deployment → Configuration → Data/Architecture → Operations
 
 ## Scripts
 
