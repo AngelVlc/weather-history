@@ -6,9 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:up": "docker compose up -d",
-    "dev:down": "docker compose down",
-    "dev:stop": "docker compose down",
+    "dev:up": "docker compose -f docker-compose.dev.yml up -d",
+    "dev:down": "docker compose -f docker-compose.dev.yml down",
+    "dev:stop": "docker compose -f docker-compose.dev.yml down",
     "dev:setup": "./scripts/dev-setup.sh",
     "verify": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/verifyData.ts",
     "populate": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/populate.ts",
