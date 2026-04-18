@@ -130,6 +130,49 @@ jobs:
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
 
+  build-frontend:
+    docker:
+      - image: cimg/node:25.9
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          name: Build frontend
+          command: |
+            cd packages/weather-ui
+            yarn build
+      - run:
+          name: Create archive
+          command: |
+            cd packages/weather-ui
+            zip -r frontend.zip dist/
+      - persist_to_workspace:
+          root: packages/weather-ui
+          paths:
+            - frontend.zip
+
+  deploy-frontend:
+    docker:
+      - image: cimg/node:25.9
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - aws-cli/setup:
+          role_arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role_session_name: "circleci-frontend-deploy"
+      - run:
+          name: Upload frontend to S3
+          command: |
+            aws s3 cp /tmp/workspace/weather-ui/frontend.zip s3://weather-history-frontend/frontend.zip
+            aws s3 sync /tmp/workspace/weather-ui/dist/ s3://weather-history-frontend/ --delete
+      - run:
+          name: Invalidate CloudFront cache
+          command: |
+            aws cloudfront create-invalidation --distribution-id $(aws cloudfront list-distributions --query "DistributionList.Items[?contains(Comment, 'weather-history-frontend')].Id" --output text) --paths "/*"
+
 workflows:
   weather-history:
     jobs:
@@ -158,6 +201,9 @@ workflows:
       - deploy-terraform-dlq-processor:
           requires:
             - deploy-lambda
-          filters:
-            branches:
-              only: main
+      - build-frontend:
+          requires:
+            - test
+      - deploy-frontend:
+          requires:
+            - build-frontend
