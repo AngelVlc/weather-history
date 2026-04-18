@@ -60,17 +60,6 @@ weather-history/
 - SAM CLI
 - Terraform
 
-## Setup
-
-```bash
-# Install dependencies
-yarn install
-
-# Run tests
-yarn workspace @weather-history/lambda-weather-extractor test
-yarn workspace @weather-history/weather-api test
-```
-
 ## Local Development
 
 ### Start DynamoDB Local
