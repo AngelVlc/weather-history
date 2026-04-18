@@ -4,9 +4,12 @@ import {
   ScanCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
-import { fromEnv } from '@aws-sdk/credential-providers';
 
-async function loadCredentials() {
+function getCredentials() {
+  if (process.env.DYNAMODB_ENDPOINT) {
+    return { accessKeyId: 'dummy', secretAccessKey: 'dummy' };
+  }
+
   if (process.env.AWS_PROFILE) {
     const homeDir = process.env.HOME || process.env.USERPROFILE;
     const credentialsPath = `${homeDir}/.aws/credentials`;
@@ -24,11 +27,18 @@ async function loadCredentials() {
     }
   }
 
-  return fromEnv();
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    return {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    };
+  }
+
+  return { accessKeyId: 'dummy', secretAccessKey: 'dummy' };
 }
 
 async function createClient() {
-  const credentials = await loadCredentials();
+  const credentials = getCredentials();
   const clientConfig: any = {
     region: process.env.AWS_REGION || 'us-east-1',
     credentials,
@@ -36,7 +46,6 @@ async function createClient() {
 
   if (process.env.DYNAMODB_ENDPOINT) {
     clientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
-    clientConfig.tls = false;
   }
 
   return new DynamoDBClient(clientConfig);
@@ -87,8 +96,9 @@ export async function queryStationData(
   const client = await createClient();
   
   const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  endDate.setDate(endDate.getDate() - 1);
+  const startDate = new Date(endDate);
+  startDate.setDate(startDate.getDate() - (days - 1));
   
   const startDateStr = startDate.toISOString().split('T')[0];
   const endDateStr = endDate.toISOString().split('T')[0];

@@ -143,7 +143,7 @@ yarn start
 ### Weather UI
 
 ```bash
-cd packages/weather-ui && npm run dev
+cd packages/weather-ui && yarn dev
 ```
 
 ## Populate Database

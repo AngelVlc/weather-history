@@ -20,6 +20,7 @@ Resources:
         Variables:
           DYNAMODB_TABLE_NAME: weather-data
           AWS_REGION: us-east-1
+          DYNAMODB_ENDPOINT: ""
       Timeout: 30
       MemorySize: 256
       Role: !GetAtt WeatherApiRole.Arn
