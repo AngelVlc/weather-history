@@ -1,0 +1,72 @@
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { StationData } from '../types';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+interface TemperatureChartProps {
+  data: StationData[];
+}
+
+export function TemperatureChart({ data }: TemperatureChartProps) {
+  const reversedData = [...data].reverse();
+
+  const chartData = {
+    labels: reversedData.map(d => d.date),
+    datasets: [
+      {
+        label: 'Temp. Máx.',
+        data: reversedData.map(d => d.tempMax),
+        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: 'rgba(239, 68, 68, 0.5)',
+        tension: 0.3,
+      },
+      {
+        label: 'Temp. Media',
+        data: reversedData.map(d => d.tempAvg),
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        tension: 0.3,
+      },
+      {
+        label: 'Temp. Mín.',
+        data: reversedData.map(d => d.tempMin),
+        borderColor: 'rgb(34, 197, 94)',
+        backgroundColor: 'rgba(34, 197, 94, 0.5)',
+        tension: 0.3,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Temperatura (°C)',
+      },
+    },
+  };
+
+  return <Line data={chartData} options={options} />;
+}
