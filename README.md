@@ -276,6 +276,80 @@ Each territory event creates one record per station (multiple records share the 
 | tempMax | Number | Maximum temperature in °C |
 | tempAvg | Number | Average temperature in °C |
 
+## Global Secondary Indexes
+
+The table has one GSI for efficient date-based queries:
+
+| Index Name | Hash Key | Range Key | Purpose |
+|------------|----------|-----------|---------|
+| date-index | date | pk | Query by date range |
+
+Note: This GSI is currently used for backend queries. A future GSI (`station-date-index`) may be added to support queries by station ID with date range (e.g., 1 year of data for a specific station).
+
+## Weather API
+
+The weather API is a Lambda function that serves weather data to the frontend. It's accessible via a Lambda Function URL.
+
+### Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/stations` | Returns list of all available stations |
+| GET | `/stations/{stationId}?days=7` | Returns weather data for a specific station (last N days) |
+
+### Response Formats
+
+**GET /stations**
+```json
+{
+  "stations": [
+    { "id": "c20m236e01", "name": "Sumacàrcer", "territory": "Ribera Alta" },
+    { "id": "c20m236e02", "name": "Sumacàrcer (Alt de la Ceja)", "territory": "Ribera Alta" }
+  ]
+}
+```
+
+**GET /stations/{stationId}?days=7**
+```json
+{
+  "stationId": "c20m236e01",
+  "stationName": "Sumacàrcer",
+  "territory": "c20",
+  "territoryName": "Ribera Alta",
+  "data": [
+    { "date": "2026-04-16", "tempMax": 27.2, "tempMin": 12.2, "tempAvg": 19.4, "precipitation": 0 },
+    { "date": "2026-04-15", "tempMax": 29.2, "tempMin": 11.2, "tempAvg": 19.1, "precipitation": 0 }
+  ]
+}
+```
+
+### Caching
+
+Both endpoints include `Cache-Control` headers:
+- `/stations`: `public, max-age=21600` (6 hours)
+- `/stations/{stationId}`: `public, max-age=7200` (2 hours)
+
+### Local Development
+
+To run the API locally:
+
+```bash
+# Start DynamoDB Local
+yarn dev:up
+
+# Setup table (in another terminal)
+yarn dev:setup
+
+# Test the API
+cd packages/weather-api
+DYNAMODB_ENDPOINT=http://localhost:8000 \
+  DYNAMODB_TABLE_NAME=weather-data \
+  AWS_REGION=us-east-1 \
+  AWS_ACCESS_KEY_ID=local \
+  AWS_SECRET_ACCESS_KEY=local \
+  node -e "const {handler}=require('./dist/index');handler({rawPath:'/stations',queryStringParameters:null,requestContext:{}}).then(r=>console.log(r.body))"
+```
+
 ## Resilience
 
 - **Retry Policy**: 3 retry attempts with up to 30 minutes backoff

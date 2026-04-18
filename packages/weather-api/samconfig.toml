@@ -1,0 +1,14 @@
+version = 0.1
+
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "weather-api"
+s3_bucket = "weather-history-lambda"
+s3_prefix = "weather-api"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+
+[default.local]
+[default.local.invoke]
+parameters = "--docker-network weather-history-network"

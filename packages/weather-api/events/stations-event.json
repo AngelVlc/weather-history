@@ -1,0 +1,10 @@
+{
+  "rawPath": "/stations",
+  "queryStringParameters": null,
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "test-api",
+    "domainName": "test.execute-api.us-east-1.amazonaws.com",
+    "requestId": "test-request-id"
+  }
+}

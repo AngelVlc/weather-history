@@ -1,57 +1,132 @@
-# weather-history - TODO
+# weather-history - UI Feature
 
-## Phase 1: Project Setup
-- [x] Crear estructura monorepo
-- [x] yarn workspaces + TypeScript + Jest
-- [x] samconfig.toml para SAM CLI
+## Plan: Weather Dashboard
 
-## Phase 2: Configuration
-- [x] `config/territories.yaml` (c20 - Ribera Alta - Sumacarcer)
-- [x] Tipos TypeScript compartidos
+### Backend (Lambda + Function URL + CloudFront)
 
-## Phase 3: Lambda (`packages/lambda-weather-extractor`)
-- [x] HTTP client (axios)
-- [x] HTML parser (cheerio)
-- [x] Extracción de datos por estación
-- [x] Cliente DynamoDB (@aws-sdk/client-dynamodb)
-- [x] Handler: recibe `{ territory, territoryName, location, stationIds }` → filtra → calcula yesterday → GET → parse → save
-- [x] Unit tests (Jest) - 5 passing
-- [x] Template SAM (`template.yaml`)
+- **Architecture:**
+  ```
+  Lambda Function URL → CloudFront → User (API)
+  ```
 
-## Phase 4: Terraform (`terraform/`)
-- [x] DynamoDB table (PK: `pk`, SK: `sk`)
-- [x] Lambda function + IAM role
-- [x] EventBridge rules (loop desde `config/territories.yaml`)
-- [ ] Input Transformer para pasar `{ territory, territoryName }`
+- **GET /stations** → List of available stations
+  - Format: `{ id: "c20m236e01", name: "Alzira", territory: "Ribera Baja" }`
+  - Implementation: DynamoDB Scan (simple, sufficient for ~3 stations)
+  - Cache-Control: `public, max-age=21600` (6 hours)
+  - Invalidation: After new data is saved by extractor Lambda
 
-## Phase 5: CircleCI (`.circleci/`)
-- [x] Pipeline jobs: test → build → deploy-lambda (sam deploy) → deploy-tf
+- **GET /stations/{stationId}?days=7** → Data for charts
+  - Returns last N days of data for a station
+  - Format: `{ stationId, stationName, territoryName, data: [{ date, tempMax, tempMin, tempAvg, precipitation }] }`
+  - Implementation: DynamoDB Scan with filter by date
+  - Cache-Control: `public, max-age=7200` (2 hours)
+  - Invalidation: After new data is saved by extractor Lambda
 
-## Testing Local
-- [x] docker-compose.yml con DynamoDB Local
-- [x] Scripts para setup local
-- [x] SAM CLI config para local invoke
-- [x] Sample event files
+**Note on GSI (Global Secondary Index):**
+- Existing GSI: `date-index` (hash key: date, range key: pk) - for date-based queries
+- Not used for UI endpoints (Scan is sufficient for small datasets)
+- Future: Add `station-date-index` GSI when supporting 1+ year data queries
 
-## Setup Local Commands
+### CloudFront Invalidation
 
-```bash
-# Start DynamoDB Local
-yarn dev:up
+- **Automatic:** Lambda extractor triggers invalidation after saving new data
+- **Manual:** Script `scripts/invalidate-cache.ts` for use with populate script
 
-# Setup table (in another terminal)
-yarn dev:setup
+### Frontend (React + Vite)
 
-# Invoke Lambda locally
-DYNAMODB_ENDPOINT=http://localhost:8000 \
-  DYNAMODB_TABLE_NAME=weather-data \
-  yarn invoke:local
+**Tech Stack:**
+- Framework: React 18 + Vite
+- Language: TypeScript
+- Router: react-router-dom
+- Styling: Tailwind CSS
+- Charts: Chart.js (react-chartjs-2)
+- HTTP Client: fetch (built-in)
 
-# Stop DynamoDB Local
-yarn dev:down
+**Project Structure:**
+```
+packages/weather-ui/
+├── public/
+│   └── index.html
+├── src/
+│   ├── main.tsx              # Entry point
+│   ├── App.tsx               # Router + layout
+│   ├── pages/
+│   │   ├── Landing.tsx       # Station list
+│   │   └── Station.tsx       # Station details + charts
+│   ├── components/
+│   │   ├── StationCard.tsx   # Card for station in list
+│   │   ├── TemperatureChart.tsx   # Line chart (max/min/avg)
+│   │   └── PrecipitationChart.tsx # Bar chart (precipitation)
+│   ├── api/
+│   │   └── weather.ts        # Fetch wrapper for API calls
+│   └── index.css             # Tailwind imports
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── tailwind.config.js
 ```
 
-## Pending
-- Configurar credenciales AWS en CircleCI
-- Crear buckets S3 para Lambda y estado Terraform
-- Primera deploy a AWS
+**Landing Page:**
+- Title: "Estaciones meteorológicas"
+- Grid of StationCards
+- Format per card: "Alzira (Ribera Baja)"
+- Click → navigate to /station/:stationId
+
+**Station Details Page:**
+- Title: stationName + territoryName
+- Chart 1 (line): tempMax, tempMin, tempAvg over last 7 days
+- Chart 2 (bar): precipitation over last 7 days
+- Back button to return to Landing
+
+### Tech Stack
+
+- Frontend: React 18 + Vite + TypeScript
+- Routing: react-router-dom
+- Styling: Tailwind CSS
+- Charts: Chart.js (react-chartjs-2)
+- HTTP: fetch API (built-in)
+- Deployment: S3 + CloudFront
+- Backend: Lambda Function URL + CloudFront
+
+### Cost Estimate
+
+- S3: ~$0.50/month
+- CloudFront (Always Free): $0
+- Lambda Function URL: $0-2/month
+- DynamoDB GSI (existing date-index): ~$1/month
+- Total: ~$2-4/month
+
+## Phase 1: Backend
+- [ ] Create new package `packages/weather-api`
+- [ ] Lambda `weather-api` to query DynamoDB
+- [ ] Endpoint GET /stations (returns station list)
+- [ ] Endpoint GET /stations/{stationId}?days=7 (returns chart data)
+- [ ] Add Cache-Control headers to responses
+- [ ] Terraform: create Lambda + Function URL
+- [ ] Terraform: create CloudFront distribution for API
+- [ ] Add cloudfront:CreateInvalidation permission to Lambda role
+- [ ] Tests for Lambda
+- [ ] SAM template for local invoke (sam local invoke)
+- [ ] Add to docker-compose for local development
+
+## Phase 2: CloudFront Invalidation
+- [ ] Integrate cache invalidation in Lambda extractor (after saving data)
+- [ ] Create script `scripts/invalidate-cache.ts` for manual invalidation
+
+## Phase 3: Frontend
+- [ ] Create package `packages/weather-ui`
+- [ ] Initialize Vite + React + TypeScript
+- [ ] Configure Tailwind CSS
+- [ ] Setup react-router-dom
+- [ ] Implement Landing page (station list)
+- [ ] Implement Station page (charts)
+- [ ] Integrate with Lambda API via CloudFront
+- [ ] Add global styles and layout
+- [ ] Tests
+
+## Phase 4: Deployment
+- [ ] Terraform: S3 bucket for static hosting
+- [ ] Terraform: CloudFront distribution + ACM certificate
+- [ ] Terraform: Route 53 alias (optional, for custom domain)
+- [ ] CircleCI: add build-frontend job
+- [ ] CircleCI: add deploy-frontend job

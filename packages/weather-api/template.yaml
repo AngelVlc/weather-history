@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Weather API Lambda
+
+Resources:
+  WeatherApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: weather-api
+      Handler: dist/index.handler
+      Runtime: nodejs20.x
+      CodeUri: ./
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: weather-data
+          AWS_REGION: us-east-1
+      Timeout: 30
+      MemorySize: 256
+      Role: !GetAtt WeatherApiRole.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        EntryPoints:
+          - src/index.ts
+
+  WeatherApiFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn: !GetAtt WeatherApiFunction.Arn
+
+  WeatherApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBReadPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !GetAtt WeatherDataTable.Arn
+                  - !Join ['', [!GetAtt WeatherDataTable.Arn, '/index/*']]
+        - PolicyName: CloudFrontInvalidationPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: '*'
+
+  WeatherDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: weather-data
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: date-index
+          KeySchema:
+            - AttributeName: date
+              KeyType: HASH
+            - AttributeName: pk
+              KeyType: RANGE
+          Projection:
+            Type: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+
+Outputs:
+  WeatherApiUrl:
+    Description: URL for Weather API
+    Value: !GetAtt WeatherApiFunctionUrl.FunctionUrl
