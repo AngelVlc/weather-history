@@ -4,6 +4,7 @@ import {
   ScanCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
+import { fromEnv } from '@aws-sdk/credential-providers';
 
 async function loadCredentials() {
   if (process.env.AWS_PROFILE) {
@@ -23,14 +24,7 @@ async function loadCredentials() {
     }
   }
 
-  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
-    return {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    };
-  }
-
-  return { accessKeyId: 'local', secretAccessKey: 'local' };
+  return fromEnv();
 }
 
 async function createClient() {
@@ -38,12 +32,11 @@ async function createClient() {
   const clientConfig: any = {
     region: process.env.AWS_REGION || 'us-east-1',
     credentials,
-    tls: false,
   };
 
   if (process.env.DYNAMODB_ENDPOINT) {
     clientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
-    clientConfig.sslEnabled = false;
+    clientConfig.tls = false;
   }
 
   return new DynamoDBClient(clientConfig);
