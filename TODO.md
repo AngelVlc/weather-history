@@ -107,7 +107,7 @@ packages/weather-ui/
 - [ ] Add cloudfront:CreateInvalidation permission to Lambda role
 - [x] Tests for Lambda
 - [x] SAM template for local invoke (sam local invoke)
-- [ ] Add to docker-compose for local development
+- [ ] Add to docker-compose for local development (removed - run directly)
 
 ## Phase 2: CloudFront Invalidation
 - [ ] Integrate cache invalidation in Lambda extractor (after saving data)

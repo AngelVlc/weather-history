@@ -331,22 +331,20 @@ Both endpoints include `Cache-Control` headers:
 
 ### Local Development
 
-To run all services locally (DynamoDB, API, and UI):
+To run the API and frontend locally:
 
 ```bash
-# Start all services
+# Start DynamoDB Local
 yarn dev:up
 
-# Stop all services
-yarn dev:down
+# In terminal 1: Start API (port 3000)
+cd packages/weather-api && sam local start-api --docker-network weather-history-network
+
+# In terminal 2: Start UI (port 5173)
+cd packages/weather-ui && npm run dev
 ```
 
-This starts:
-- DynamoDB Local (port 8000)
-- Weather API via SAM Local (port 3000)
-- Weather UI via Vite (port 5173)
-
-Access the UI at: http://localhost:5173
+The API will be available at http://localhost:3000 and the UI at http://localhost:5173.
 
 ## Resilience
 
