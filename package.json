@@ -6,15 +6,11 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "yarn workspace @weather-history/lambda-weather-extractor test",
-    "build": "yarn workspace @weather-history/lambda-weather-extractor build",
-    "lint": "yarn workspace @weather-history/lambda-weather-extractor lint",
     "dev:up": "docker compose up -d",
     "dev:down": "docker compose down",
     "dev:stop": "docker compose down",
     "dev:setup": "./scripts/dev-setup.sh",
-    "dev:verify": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/verifyData.ts",
-    "invoke:local": "yarn workspace @weather-history/lambda-weather-extractor invoke",
+    "verify": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/verifyData.ts",
     "populate": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/populate.ts",
     "query": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/query.ts"
   },

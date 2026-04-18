@@ -55,10 +55,10 @@ weather-history/
 yarn install
 
 # Build the project
-yarn build
+cd packages/lambda-weather-extractor && yarn build
 
 # Run tests
-yarn test
+cd packages/lambda-weather-extractor && yarn test
 ```
 
 ## Local Development
@@ -227,6 +227,9 @@ terraform apply
 # Deploy Lambda
 cd packages/lambda-weather-extractor
 yarn build
+
+# Or from root workspace
+yarn workspace @weather-history/lambda-weather-extractor build
 ```
 
 ## Configuration
