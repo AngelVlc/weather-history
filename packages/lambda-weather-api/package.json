@@ -1,5 +1,5 @@
 {
-  "name": "@weather-history/weather-api",
+  "name": "@weather-history/lambda-weather-api",
   "version": "1.0.0",
   "description": "Lambda function to serve weather data via API",
   "main": "dist/index.js",

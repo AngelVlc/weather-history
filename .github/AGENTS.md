@@ -52,7 +52,7 @@ weather-history/
 ├── packages/
 │   ├── lambda-weather-extractor/    # Main Lambda function (data extraction)
 │   ├── dlq-processor/               # DLQ notification Lambda
-│   ├── weather-api/                 # API Lambda for frontend
+│   ├── lambda-weather-api/                 # API Lambda for frontend
 │   └── weather-ui/                  # Frontend (React + Vite)
 ├── terraform/
 ├── config/

@@ -12,7 +12,7 @@ Resources:
   WeatherApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: weather-api
+      FunctionName: lambda-weather-api
       Handler: dist/index.handler
       Runtime: nodejs20.x
       CodeUri: ./

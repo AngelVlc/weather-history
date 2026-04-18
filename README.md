@@ -12,7 +12,7 @@ Daily weather data extraction and storage for historical analysis.
   - [DynamoDB Local](#dynamodb-local)
   - [Create Table](#create-table)
   - [Lambda Extractor](#lambda-extractor)
-  - [Weather API](#weather-api)
+  - [Lambda Weather API](#lambda-weather-api)
   - [Weather UI](#weather-ui)
 - [Populate Database](#populate-database)
   - [Usage](#usage)
@@ -75,7 +75,7 @@ weather-history/
 │   │   └── template.yaml
 │   ├── dlq-processor/               # DLQ notification Lambda
 │   │   └── src/
-│   ├── weather-api/                 # API Lambda (serves data to UI)
+│   ├── lambda-weather-api/                 # API Lambda (serves data to UI)
 │   │   ├── src/
 │   │   ├── tests/
 │   │   └── template.yaml
@@ -133,10 +133,10 @@ cd packages/lambda-weather-extractor && \
   yarn invoke
 ```
 
-### Weather API
+### Lambda Weather API
 
 ```bash
-cd packages/weather-api
+cd packages/lambda-weather-api
 yarn start
 ```
 

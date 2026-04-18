@@ -97,8 +97,8 @@ packages/weather-ui/
 - Total: ~$2-4/month
 
 ## Phase 1: Backend
-- [x] Create new package `packages/weather-api`
-- [x] Lambda `weather-api` to query DynamoDB
+- [x] Create new package `packages/lambda-weather-api`
+- [x] Lambda `lambda-weather-api` to query DynamoDB
 - [x] Endpoint GET /stations (returns station list)
 - [x] Endpoint GET /stations/{stationId}?days=7 (returns chart data)
 - [x] Add Cache-Control headers to responses

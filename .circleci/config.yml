@@ -17,7 +17,7 @@ jobs:
           name: Run tests
           command: |
             yarn workspace @weather-history/lambda-weather-extractor test
-            yarn workspace @weather-history/weather-api test
+            yarn workspace @weather-history/lambda-weather-api test
       - run:
           name: Build
           command: yarn workspace @weather-history/lambda-weather-extractor build
