@@ -66,11 +66,9 @@ weather-history/
 # Install dependencies
 yarn install
 
-# Build the project
-cd packages/lambda-weather-extractor && yarn build
-
 # Run tests
-cd packages/lambda-weather-extractor && yarn test
+yarn workspace @weather-history/lambda-weather-extractor test
+yarn workspace @weather-history/weather-api test
 ```
 
 ## Local Development
@@ -87,7 +85,19 @@ yarn dev:up
 yarn dev:setup
 ```
 
-### Invoke Lambda Locally
+### Weather API (port 3000)
+
+```bash
+cd packages/weather-api && sam local start-api --docker-network weather-history-network
+```
+
+### Weather UI (port 5173)
+
+```bash
+cd packages/weather-ui && npm run dev
+```
+
+### Lambda Extractor (optional)
 
 ```bash
 cd packages/lambda-weather-extractor && \
@@ -341,32 +351,7 @@ Both endpoints include `Cache-Control` headers:
 - `/stations`: `public, max-age=21600` (6 hours)
 - `/stations/{stationId}`: `public, max-age=7200` (2 hours)
 
-### Local Development
-
-To run the API and frontend locally:
-
-```bash
-# Start DynamoDB Local
-yarn dev:up
-
-# Setup table (create table and load initial data)
-yarn dev:setup
-
-# In terminal 1: Start API (port 3000)
-cd packages/weather-api && sam local start-api --docker-network weather-history-network
-
-# In terminal 2: Start UI (port 5173)
-cd packages/weather-ui && npm run dev
-```
-
-The API will be available at http://localhost:3000 and the UI at http://localhost:5173.
-
 ## Resilience
-
-- **Retry Policy**: 3 retry attempts with up to 30 minutes backoff
-- **Dead Letter Queue**: Failed events after retries are sent to SQS DLQ for manual reprocessing
-- **DLQ Processor Lambda**: Automatically sends email notification when events reach DLQ
-- **CloudWatch Logs**: 3-day retention for debugging
 
 ### What happens when an event fails?
 
