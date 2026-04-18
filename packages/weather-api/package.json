@@ -7,6 +7,7 @@
     "build": "tsc",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
+    "start": "sam local start-api --docker-network weather-history_weather-history-network --port 3001",
     "invoke": "DYNAMODB_ENDPOINT=http://localhost:8000 DYNAMODB_TABLE_NAME=weather-data AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake node -e \"const{handler}=require('./dist/index');handler(require('./events/stations-event.json')).then(r=>console.log(r.body))\""
   },
   "dependencies": {

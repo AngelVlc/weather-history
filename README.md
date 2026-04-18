@@ -137,7 +137,7 @@ cd packages/lambda-weather-extractor && \
 
 ```bash
 cd packages/weather-api
-yarn invoke
+yarn start
 ```
 
 ### Weather UI

@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Weather API Lambda
 
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET'"
+      AllowOrigin: "'*'"
+
 Resources:
   WeatherApiFunction:
     Type: AWS::Serverless::Function
@@ -17,18 +23,23 @@ Resources:
       Timeout: 30
       MemorySize: 256
       Role: !GetAtt WeatherApiRole.Arn
+      Events:
+        Stations:
+          Type: Api
+          Properties:
+            Path: /stations
+            Method: GET
+        StationById:
+          Type: Api
+          Properties:
+            Path: /stations/{stationId}
+            Method: GET
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         EntryPoints:
           - src/index.ts
-
-  WeatherApiFunctionUrl:
-    Type: AWS::Lambda::Url
-    Properties:
-      AuthType: NONE
-      TargetFunctionArn: !GetAtt WeatherApiFunction.Arn
 
   WeatherApiRole:
     Type: AWS::IAM::Role
@@ -96,4 +107,4 @@ Resources:
 Outputs:
   WeatherApiUrl:
     Description: URL for Weather API
-    Value: !GetAtt WeatherApiFunctionUrl.FunctionUrl
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"

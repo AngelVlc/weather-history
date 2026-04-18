@@ -10,5 +10,5 @@ region = "us-east-1"
 capabilities = "CAPABILITY_IAM"
 
 [default.local]
-[default.local.invoke]
-parameters = "--docker-network weather-history_weather-history-network --env-vars events/env.json"
+[default.local.start_api]
+parameters = "--docker-network weather-history_weather-history-network --port 3001 --env-vars events/env.json"

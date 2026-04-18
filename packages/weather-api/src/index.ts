@@ -1,17 +1,29 @@
 import { LambdaEvent, LambdaResponse, Station, StationData, StationResponse, StationsResponse } from './types';
 import { scanAllStations, queryStationData } from './dynamodb/client';
 
-export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
+interface ApiGatewayEvent {
+  path?: string;
+  rawPath?: string;
+  queryStringParameters?: Record<string, string> | null;
+  pathParameters?: Record<string, string> | null;
+  requestContext?: Record<string, any>;
+}
+
+export const handler = async (event: LambdaEvent | ApiGatewayEvent): Promise<LambdaResponse> => {
   console.log('Event received:', JSON.stringify(event));
 
-  const { rawPath, queryStringParameters } = event;
+  // Support both Lambda Function URL (rawPath) and API Gateway (path)
+  const path = (event as any).rawPath || (event as any).path || '/';
+  const queryStringParameters = (event as any).queryStringParameters || {};
+  const pathParameters = (event as any).pathParameters || {};
 
-  if (rawPath === '/stations') {
+  if (path === '/stations') {
     return getStationsHandler();
   }
 
-  if (rawPath.startsWith('/stations/')) {
-    const stationId = rawPath.split('/stations/')[1];
+  const stationIdMatch = path.match(/^\/stations\/([^/]+)$/);
+  if (stationIdMatch) {
+    const stationId = stationIdMatch[1];
     const days = parseInt(queryStringParameters?.days || '7', 10);
     return await getStationDataHandler(stationId, days);
   }
