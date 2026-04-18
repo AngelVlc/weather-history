@@ -26,8 +26,9 @@ Daily weather data extraction and storage for historical analysis.
   - [Deploy](#deploy)
   - [Manual Deployment](#manual-deployment)
 - [Configuration](#configuration)
-- [Data Model](#data-model)
-- [Global Secondary Indexes](#global-secondary-indexes)
+- [Database](#database)
+  - [Data Model](#data-model)
+  - [Global Secondary Indexes](#global-secondary-indexes)
 - [API Reference](#api-reference)
   - [Endpoints](#endpoints)
   - [Response Formats](#response-formats)
@@ -261,7 +262,9 @@ territories:
 - `cronHour`: Hour to trigger Lambda (UTC)
 - `stationIds`: List of station IDs to save (from avamet.org)
 
-## Data Model
+## Database
+
+### Data Model
 
 **DynamoDB Table: weather-data**
 
@@ -282,7 +285,7 @@ Each territory event creates one record per station (multiple records share the 
 | tempMax | Number | Maximum temperature in °C |
 | tempAvg | Number | Average temperature in °C |
 
-## Global Secondary Indexes
+### Global Secondary Indexes
 
 The table has one GSI for efficient date-based queries:
 
