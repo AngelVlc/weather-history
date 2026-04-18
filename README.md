@@ -25,18 +25,30 @@ Daily weather data extraction and storage for historical analysis.
 ```
 weather-history/
 ├── packages/
-│   ├── lambda-weather-extractor/    # Main Lambda function
+│   ├── lambda-weather-extractor/    # Main Lambda function (data extraction)
 │   │   ├── src/
 │   │   ├── tests/
 │   │   ├── events/
 │   │   └── template.yaml
-│   └── dlq-processor/              # DLQ notification Lambda
-│       └── src/
+│   ├── dlq-processor/               # DLQ notification Lambda
+│   │   └── src/
+│   ├── weather-api/                 # API Lambda (serves data to UI)
+│   │   ├── src/
+│   │   ├── tests/
+│   │   └── template.yaml
+│   └── weather-ui/                  # Frontend (React + Vite)
+│       ├── src/
+│       │   ├── pages/
+│       │   ├── components/
+│       │   └── api/
+│       └── public/
 ├── terraform/                       # Infrastructure as code
 ├── config/
 │   └── territories.yaml
 ├── scripts/
-└── docker-compose.yml
+├── docker-compose.yml
+└── .circleci/
+    └── config.yml
 ```
 
 ## Prerequisites
@@ -336,6 +348,9 @@ To run the API and frontend locally:
 ```bash
 # Start DynamoDB Local
 yarn dev:up
+
+# Setup table (create table and load initial data)
+yarn dev:setup
 
 # In terminal 1: Start API (port 3000)
 cd packages/weather-api && sam local start-api --docker-network weather-history-network
