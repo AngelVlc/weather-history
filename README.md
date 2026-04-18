@@ -331,24 +331,22 @@ Both endpoints include `Cache-Control` headers:
 
 ### Local Development
 
-To run the API locally:
+To run all services locally (DynamoDB, API, and UI):
 
 ```bash
-# Start DynamoDB Local
+# Start all services
 yarn dev:up
 
-# Setup table (in another terminal)
-yarn dev:setup
-
-# Test the API
-cd packages/weather-api
-DYNAMODB_ENDPOINT=http://localhost:8000 \
-  DYNAMODB_TABLE_NAME=weather-data \
-  AWS_REGION=us-east-1 \
-  AWS_ACCESS_KEY_ID=local \
-  AWS_SECRET_ACCESS_KEY=local \
-  node -e "const {handler}=require('./dist/index');handler({rawPath:'/stations',queryStringParameters:null,requestContext:{}}).then(r=>console.log(r.body))"
+# Stop all services
+yarn dev:down
 ```
+
+This starts:
+- DynamoDB Local (port 8000)
+- Weather API via SAM Local (port 3000)
+- Weather UI via Vite (port 5173)
+
+Access the UI at: http://localhost:5173
 
 ## Resilience
 
