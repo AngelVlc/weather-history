@@ -24,7 +24,6 @@ Daily weather data extraction and storage for historical analysis.
 - [Deployment](#deployment)
   - [Prerequisites](#prerequisites-1)
   - [Deploy](#deploy)
-  - [Manual Deployment](#manual-deployment)
 - [Configuration](#configuration)
 - [Database](#database)
   - [Data Model](#data-model)
@@ -261,28 +260,6 @@ The deployment is automated via CircleCI on push to `main`:
 5. **deploy-terraform-dlq-processor** - Creates DLQ processor Lambda
 6. **build-frontend** - Builds React frontend
 7. **deploy-frontend** - Deploys frontend to S3 and invalidates CloudFront
-
-### Manual Deployment
-
-```bash
-# Deploy Terraform infrastructure
-cd terraform
-terraform init
-terraform plan
-terraform apply -target=aws_s3_bucket.lambda_code
-terraform apply -target=aws_dynamodb_table.weather_data
-terraform apply -target=aws_iam_role.lambda_role
-
-# Deploy Lambda
-cd packages/lambda-weather-extractor
-yarn build
-zip -r dist.zip dist/
-aws s3 cp dist.zip s3://weather-history-lambda/lambda.zip
-
-# Deploy Lambda via Terraform
-cd terraform
-terraform apply -target=aws_lambda_function.weather_extractor
-```
 
 ## Database
 
