@@ -2,6 +2,22 @@
 
 Daily weather data extraction and storage for historical analysis.
 
+## Table of Contents
+
+- [Purpose](#purpose)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Local Development](#local-development)
+- [Populate Database](#populate-database)
+- [Deployment](#deployment)
+- [Configuration](#configuration)
+- [Data Model](#data-model)
+- [Global Secondary Indexes](#global-secondary-indexes)
+- [Weather API](#weather-api)
+- [Resilience](#resilience)
+- [CircleCI OIDC Setup](#circleci-oidc-setup)
+
 ## Purpose
 
 - Extract daily weather records (precipitation, min/max/avg temperature) for specific locations from a public website (AVAMET)
