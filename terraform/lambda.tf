@@ -57,15 +57,21 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_policy.arn
 }
 
+data "aws_s3_object" "lambda_zip" {
+  bucket = aws_s3_bucket.lambda_code.id
+  key    = "lambda.zip"
+}
+
 resource "aws_lambda_function" "weather_extractor" {
-  function_name = var.lambda_function_name
-  role          = aws_iam_role.lambda_role.arn
-  s3_bucket     = aws_s3_bucket.lambda_code.id
-  s3_key        = "lambda.zip"
-  handler       = "dist/handler.handler"
-  runtime       = "nodejs20.x"
-  timeout       = 30
-  memory_size   = 128
+  function_name    = var.lambda_function_name
+  role             = aws_iam_role.lambda_role.arn
+  s3_bucket        = aws_s3_bucket.lambda_code.id
+  s3_key           = "lambda.zip"
+  handler          = "dist/handler.handler"
+  runtime          = "nodejs20.x"
+  timeout          = 30
+  memory_size      = 128
+  source_code_hash = data.aws_s3_object.lambda_zip.etag
 
   environment {
     variables = {
