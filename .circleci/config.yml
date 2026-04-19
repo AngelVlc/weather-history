@@ -134,6 +134,33 @@ deploy-lambda-dlq-processor:
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
 
+  deploy-lambda-api:
+    docker:
+      - image: cimg/node:25.9
+    steps:
+      - checkout
+      - terraform/install:
+          terraform_version: 1.14.8
+      - aws-cli/setup:
+          role_arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role_session_name: "circleci-terraform-deploy"
+      - run:
+          name: Terraform Init
+          command: terraform -chdir=terraform init -reconfigure
+      - run:
+          name: Terraform Apply Lambda API
+          command: |
+            terraform -chdir=terraform apply \
+              -target=aws_lambda_function.lambda_api \
+              -target=aws_lambda_function_url.lambda_api \
+              -target=aws_iam_role.lambda_api_role \
+              -target=aws_iam_policy.lambda_api_policy \
+              -target=aws_iam_role_policy_attachment.lambda_api_policy_attachment \
+              -target=aws_cloudwatch_log_group.lambda_api_logs \
+              -var-file=terraform.tfvars \
+              -auto-approve
+
   build-frontend:
     docker:
       - image: cimg/node:25.9
@@ -205,6 +232,12 @@ workflows:
       - deploy-lambda-dlq-processor:
           requires:
             - upload-lambdas
+      - deploy-lambda-api:
+          requires:
+            - upload-lambdas
+          filters:
+            branches:
+              only: main
       - build-frontend:
           requires:
             - test

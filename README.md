@@ -435,10 +435,18 @@ In AWS Console → IAM → Roles → Create role:
                 "lambda:*"
             ],
             "Resource": [
-                "arn:aws:lambda:*:*:function:weather-extractor",
-                "arn:aws:lambda:*:*:function:weather-extractor-dlq-processor",
+                "arn:aws:lambda:*:*:function:lambda-weather-extractor",
+                "arn:aws:lambda:*:*:function:lambda-weather-api",
+                "arn:aws:lambda:*:*:function:lambda-weather-extractor-dlq-processor",
                 "arn:aws:lambda:*:*:event-source-mapping:*"
             ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudfront:CreateInvalidation"
+            ],
+            "Resource": "*"
         },
         {
             "Effect": "Allow",
