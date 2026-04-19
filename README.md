@@ -472,7 +472,8 @@ In AWS Console → IAM → Roles → Create role:
                 "cloudfront:GetDistribution",
                 "cloudfront:ListDistributions",
                 "cloudfront:TagResource",
-                "cloudfront:ListTagsForResource"
+                "cloudfront:ListTagsForResource",
+                "cloudfront:UpdateDistribution"
             ],
             "Resource": "*"
         },
