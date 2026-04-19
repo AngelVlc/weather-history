@@ -12,8 +12,12 @@
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@weather-history/shared-dynamodb-client": ["__mocks__/@weather-history/shared-dynamodb-client.ts"]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": ["src/**/*", "tests/**/*", "__mocks__/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
