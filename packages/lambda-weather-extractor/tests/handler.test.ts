@@ -4,7 +4,10 @@ import * as parser from '../src/parser/htmlParser';
 
 jest.mock('../src/httpClient');
 jest.mock('../src/parser/htmlParser');
-jest.mock('@weather-history/shared-dynamodb-client');
+
+import { saveWeatherRecords } from '@weather-history/shared-dynamodb-client';
+
+const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
 
 describe('Weather Extractor Lambda - Handler', () => {
   beforeEach(() => {
@@ -20,8 +23,6 @@ describe('Weather Extractor Lambda - Handler', () => {
 
   describe('handler', () => {
     it('should fetch, parse and save weather data for matching stations', async () => {
-      const { saveWeatherRecords } = await import('@weather-history/shared-dynamodb-client');
-      const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
       mockSaveWeatherRecords.mockResolvedValue(undefined);
 
       const mockHtml = '<table>...</table>';
@@ -77,8 +78,6 @@ describe('Weather Extractor Lambda - Handler', () => {
     });
 
     it('should not save records when no stations match filter', async () => {
-      const { saveWeatherRecords } = await import('@weather-history/shared-dynamodb-client');
-      const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
       mockSaveWeatherRecords.mockResolvedValue(undefined);
 
       const mockHtml = '<table>...</table>';
@@ -106,8 +105,6 @@ describe('Weather Extractor Lambda - Handler', () => {
     });
 
     it('should handle empty parsed data', async () => {
-      const { saveWeatherRecords } = await import('@weather-history/shared-dynamodb-client');
-      const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
       mockSaveWeatherRecords.mockResolvedValue(undefined);
 
       jest
