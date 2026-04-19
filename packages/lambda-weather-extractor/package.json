@@ -4,16 +4,15 @@
   "description": "Lambda function to extract weather data from AVAMET",
   "main": "dist/handler.js",
   "scripts": {
-    "build": "tsc && npm run copy-deps",
-    "copy-deps": "cp -r ../../node_modules/@weather-history/lambda-weather-api ./dist/ && cp -r ../../node_modules/@weather-history/shared-dynamodb-client ./dist/",
-    "test": "jest",
+    "build": "esbuild src/handler.ts --bundle --platform=node --outfile=dist/handler.js --external:aws-sdk",
+    "test": "tsc --noEmit && jest",
     "lint": "eslint src/**/*.ts",
     "invoke": "sam local invoke WeatherExtractorFunction -e events/lambda-input.json"
   },
   "dependencies": {
-    "@weather-history/shared-dynamodb-client": "*",
-    "@aws-sdk/client-dynamodb": "^3.0.0",
     "@aws-sdk/client-cloudfront": "^3.0.0",
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@weather-history/shared-dynamodb-client": "*",
     "axios": "^1.6.0",
     "cheerio": "^1.0.0"
   },
@@ -21,6 +20,7 @@
     "@types/aws-lambda": "^8.10.0",
     "@types/jest": "^29.5.0",
     "@types/node": "^20.0.0",
+    "esbuild": "^0.28.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.0"
