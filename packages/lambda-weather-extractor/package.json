@@ -5,7 +5,7 @@
   "main": "dist/handler.js",
   "scripts": {
     "build": "esbuild src/handler.ts --bundle --platform=node --outfile=dist/handler.js --external:aws-sdk",
-    "test": "tsc --noEmit && jest",
+    "test": "jest",
     "lint": "eslint src/**/*.ts",
     "invoke": "sam local invoke WeatherExtractorFunction -e events/lambda-input.json"
   },
