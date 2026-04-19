@@ -215,6 +215,9 @@ workflows:
           filters:
             branches:
               only: main
+      - build-frontend:
+          requires:
+            - test
       - deploy-terraform-infra:
           requires:
             - test
@@ -242,9 +245,7 @@ workflows:
           filters:
             branches:
               only: main
-      - build-frontend:
-          requires:
-            - test
       - deploy-frontend:
           requires:
             - build-frontend
+            - deploy-terraform-infra
