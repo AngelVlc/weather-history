@@ -110,8 +110,8 @@ packages/weather-ui/
 - [x] Add to docker-compose for local development (removed - run directly)
 
 ## Phase 2: CloudFront Invalidation
-- [ ] Integrate cache invalidation in Lambda extractor (after saving data)
-- [ ] Create script `scripts/invalidate-cache.ts` for manual invalidation
+- [x] Integrate cache invalidation in Lambda extractor (after saving data)
+- [x] Create script `scripts/invalidate-cache.ts` for manual invalidation
 
 ## Phase 3: Frontend
 - [x] Create package `packages/weather-ui`
@@ -122,7 +122,7 @@ packages/weather-ui/
 - [x] Implement Station page (charts)
 - [x] Integrate with Lambda API via CloudFront (needs deployment)
 - [x] Add global styles and layout
-- [ ] Tests (no tests currently)
+- [x] Tests (basic placeholder)
 
 ## Phase 4: Deployment
 - [x] Terraform: S3 bucket for static hosting
