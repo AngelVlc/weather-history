@@ -7,13 +7,13 @@ variable "aws_region" {
 variable "lambda_function_name" {
   description = "Name of the Lambda function"
   type        = string
-  default     = "lambda-weather-extractor"
+  default     = "weather-extractor"
 }
 
 variable "lambda_api_function_name" {
   description = "Name of the Lambda API function"
   type        = string
-  default     = "lambda-weather-api"
+  default     = "weather-api"
 }
 
 variable "dynamodb_table_name" {

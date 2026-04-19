@@ -454,16 +454,12 @@ In AWS Console → IAM → Roles → Create role:
         {
             "Effect": "Allow",
             "Action": [
-                "lambda:GetFunction",
-                "lambda:UpdateFunctionCode",
-                "lambda:CreateFunction",
-                "lambda:DeleteFunction",
-                "lambda:InvokeFunction"
+                "lambda:*"
             ],
             "Resource": [
-                "arn:aws:lambda:*:*:function:lambda-weather-extractor",
-                "arn:aws:lambda:*:*:function:lambda-weather-api",
-                "arn:aws:lambda:*:*:function:lambda-weather-extractor-dlq-processor",
+                "arn:aws:lambda:*:*:function:weather-extractor",
+                "arn:aws:lambda:*:*:function:weather-api",
+                "arn:aws:lambda:*:*:function:weather-extractor-dlq-processor",
                 "arn:aws:lambda:*:*:event-source-mapping:*"
             ]
         },
