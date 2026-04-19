@@ -236,7 +236,7 @@ jobs:
             aws s3 cp /tmp/workspace/frontend.zip s3://weather-history-frontend/frontend.zip
             aws s3 sync /tmp/workspace/dist/ s3://weather-history-frontend/ --delete
 
-  workflows:
+workflows:
   weather-history:
     jobs:
       - test:
