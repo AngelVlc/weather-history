@@ -14,6 +14,9 @@ jobs:
       - node/install-packages:
           pkg-manager: yarn
       - run:
+          name: Install workspace dependencies
+          command: yarn install
+      - run:
           name: Run tests
           command: |
             yarn workspace @weather-history/lambda-weather-extractor test
@@ -61,6 +64,9 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
+      - run:
+          name: Install workspace dependencies
+          command: yarn install
       - run:
           name: Build Lambda packages
           command: |
@@ -168,6 +174,9 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
+      - run:
+          name: Install workspace dependencies
+          command: yarn install
       - run:
           name: Build frontend
           command: |

@@ -8,7 +8,9 @@ Daily weather data extraction and storage for historical analysis.
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
 - [Development](#development)
+  - [Install Dependencies](#install-dependencies)
   - [DynamoDB Local](#dynamodb-local)
   - [Create Table](#create-table)
   - [Lambda Extractor](#lambda-extractor)
@@ -23,7 +25,6 @@ Daily weather data extraction and storage for historical analysis.
 - [Deployment](#deployment)
   - [Prerequisites](#prerequisites-1)
   - [Deploy](#deploy)
-- [Configuration](#configuration)
 - [Database](#database)
   - [Data Model](#data-model)
   - [Global Secondary Indexes](#global-secondary-indexes)
@@ -122,6 +123,14 @@ The project uses a shared DynamoDB client. Depending on where you're running:
 - `@weather-history/shared-dynamodb-client` - Shared DynamoDB client used by all Lambdas and scripts
 
 ## Development
+
+### Install Dependencies
+
+```bash
+yarn install
+```
+
+This creates the workspace symlinks for shared packages like `@weather-history/shared-dynamodb-client`.
 
 ### DynamoDB Local
 
