@@ -173,21 +173,18 @@ Use the populate script to insert historical data into DynamoDB.
 ```bash
 # Single day (local)
 DYNAMODB_ENDPOINT=http://localhost:8000 \
+AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn populate --start-date 2025-04-16
 
 # Date range (local)
 DYNAMODB_ENDPOINT=http://localhost:8000 \
+AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 
 # Production (AWS with profile)
-AWS_PROFILE=personal AWS_REGION=us-east-1 \
-DYNAMODB_TABLE_NAME=weather-data \
-yarn populate --start-date 2025-04-01 --end-date 2025-04-15
-
-# Production (with environment variables)
-AWS_ACCESS_KEY_ID=xxx AWS_SECRET_ACCESS_KEY=xxx AWS_REGION=us-east-1 \
+AWS_PROFILE=xxxx AWS_REGION=us-east-1 \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 ```
@@ -210,18 +207,14 @@ Use the query script to view stored data with pagination.
 ### Usage
 
 ```bash
-# Local
+# Local (requires AWS credentials for local DynamoDB)
 DYNAMODB_ENDPOINT=http://localhost:8000 \
+AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn query
 
 # Production (with AWS profile)
 AWS_PROFILE=personal AWS_REGION=us-east-1 \
-DYNAMODB_TABLE_NAME=weather-data \
-yarn query
-
-# Production (with environment variables)
-AWS_ACCESS_KEY_ID=xxx AWS_SECRET_ACCESS_KEY=xxx AWS_REGION=us-east-1 \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn query
 
