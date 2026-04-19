@@ -85,7 +85,7 @@ jobs:
             aws s3 cp packages/lambda-weather-api/dist.zip s3://weather-history-lambda/lambda-weather-api.zip
             aws s3 cp packages/dlq-processor/dist.zip s3://weather-history-lambda/dlq-processor.zip
 
-deploy-lambda-extractor:
+  deploy-lambda-extractor:
     docker:
       - image: cimg/node:25.9
     steps:
@@ -110,7 +110,7 @@ deploy-lambda-extractor:
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
 
-deploy-lambda-dlq-processor:
+  deploy-lambda-dlq-processor:
     docker:
       - image: cimg/node:25.9
     steps:
