@@ -11,10 +11,8 @@ jobs:
       - image: cimg/node:25.9
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: yarn
       - run:
-          name: Install workspace dependencies
+          name: Install dependencies
           command: yarn install
       - run:
           name: Run tests
@@ -62,10 +60,8 @@ jobs:
       - image: cimg/node:25.9
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: yarn
       - run:
-          name: Install workspace dependencies
+          name: Install dependencies
           command: yarn install
       - run:
           name: Build Lambda packages
@@ -172,10 +168,8 @@ jobs:
       - image: cimg/node:25.9
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: yarn
       - run:
-          name: Install workspace dependencies
+          name: Install dependencies
           command: yarn install
       - run:
           name: Build frontend
