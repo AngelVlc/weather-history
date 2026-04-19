@@ -102,12 +102,12 @@ packages/weather-ui/
 - [x] Endpoint GET /stations (returns station list)
 - [x] Endpoint GET /stations/{stationId}?days=7 (returns chart data)
 - [x] Add Cache-Control headers to responses
-- [ ] Terraform: create Lambda + Function URL
+- [x] Terraform: create Lambda + Function URL
 - [ ] Terraform: create CloudFront distribution for API
-- [ ] Add cloudfront:CreateInvalidation permission to Lambda role
+- [x] Add cloudfront:CreateInvalidation permission to Lambda role
 - [x] Tests for Lambda
 - [x] SAM template for local invoke (sam local invoke)
-- [ ] Add to docker-compose for local development (removed - run directly)
+- [x] Add to docker-compose for local development (removed - run directly)
 
 ## Phase 2: CloudFront Invalidation
 - [ ] Integrate cache invalidation in Lambda extractor (after saving data)
@@ -120,9 +120,9 @@ packages/weather-ui/
 - [x] Setup react-router-dom
 - [x] Implement Landing page (station list)
 - [x] Implement Station page (charts)
-- [ ] Integrate with Lambda API via CloudFront (needs deployment)
+- [x] Integrate with Lambda API via CloudFront (needs deployment)
 - [x] Add global styles and layout
-- [ ] Tests
+- [ ] Tests (no tests currently)
 
 ## Phase 4: Deployment
 - [x] Terraform: S3 bucket for static hosting
