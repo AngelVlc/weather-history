@@ -42,6 +42,10 @@ jobs:
           command: |
             terraform -chdir=terraform apply \
               -target=aws_s3_bucket.lambda_code \
+              -target=aws_s3_bucket.frontend \
+              -target=aws_s3_bucket_ownership_controls.frontend \
+              -target=aws_s3_bucket_public_access_block.frontend \
+              -target=aws_s3_bucket_website_configuration.frontend \
               -target=aws_sqs_queue.dlq \
               -target=aws_dynamodb_table.weather_data \
               -target=aws_iam_role.lambda_role \
@@ -51,7 +55,8 @@ jobs:
               -target=aws_cloudwatch_log_group.lambda_logs \
               -target=aws_iam_role.dlq_processor_role \
               -target=aws_iam_role_policy.dlq_processor_ses_policy \
-              -var-file=terraform.tfvars \
+              -target=aws_cloudfront_distribution.frontend \
+              -var-file=tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
 
