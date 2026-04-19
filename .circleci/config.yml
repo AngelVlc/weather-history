@@ -56,7 +56,7 @@ jobs:
               -target=aws_iam_role.dlq_processor_role \
               -target=aws_iam_role_policy.dlq_processor_ses_policy \
               -target=aws_cloudfront_distribution.frontend \
-              -var-file=tfvars \
+              -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
 
