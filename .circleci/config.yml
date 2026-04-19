@@ -211,7 +211,7 @@ jobs:
       - run:
           name: Invalidate CloudFront cache
           command: |
-            aws cloudfront create-invalidation --distribution-id $(aws cloudfront list-distributions --query "DistributionList.Items[?contains(Comment, 'weather-history-frontend')].Id" --output text) --paths "/*"
+            aws cloudfront create-invalidation --distribution-id $(aws cloudfront list-distributions --query "DistributionList.Items[?contains(Tags.Description, 'weather-history-frontend')].Id" --output text) --paths "/*"
 
 workflows:
   weather-history:

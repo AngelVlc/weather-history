@@ -44,8 +44,17 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   tags = {
-    Name = "weather-history-frontend"
+    Name        = "weather-history-frontend"
+    Description = "weather-history-frontend"
   }
+}
+
+output "frontend_distribution_id" {
+  value = aws_cloudfront_distribution.frontend.id
+}
+
+output "frontend_distribution_arn" {
+  value = aws_cloudfront_distribution.frontend.arn
 }
 
 # Output the CloudFront distribution domain name
