@@ -20,7 +20,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "S3-frontend"
-    viewer_protocol_policy = "allow-all" # Using HTTP for now, add SSL later for custom domain
+    viewer_protocol_policy = "allow-all"
     compress               = true
 
     forwarded_values {
@@ -37,6 +37,10 @@ resource "aws_cloudfront_distribution" "frontend" {
     geo_restriction {
       restriction_type = "none"
     }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
   }
 
   tags = {

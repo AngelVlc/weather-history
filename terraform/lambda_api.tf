@@ -99,7 +99,7 @@ resource "aws_cloudwatch_log_group" "lambda_api_logs" {
 
 resource "aws_lambda_function_url" "lambda_api" {
   function_name      = aws_lambda_function.lambda_api.function_name
-  authorization_type = "None"
+  authorization_type = "NONE"
 
   cors {
     allow_credentials = true
@@ -108,13 +108,4 @@ resource "aws_lambda_function_url" "lambda_api" {
     allow_headers     = []
     max_age           = 7200
   }
-}
-
-resource "aws_lambda_permission" "allow_cloudfront" {
-  count         = 0
-  statement_id  = "AllowCloudFrontInvocation"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_api.function_name
-  principal     = "cloudfront.amazonaws.com"
-  source_arn    = aws_cloudfront_distribution.api.arn
 }
