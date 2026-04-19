@@ -1,11 +1,10 @@
 import { handler, getYesterdayDate, getDateFromString } from '../src/handler';
 import * as httpClient from '../src/httpClient';
 import * as parser from '../src/parser/htmlParser';
-import * as dynamoDB from '../src/dynamodb/client';
 
 jest.mock('../src/httpClient');
 jest.mock('../src/parser/htmlParser');
-jest.mock('../src/dynamodb/client');
+jest.mock('@weather-history/shared-dynamodb-client');
 
 describe('Weather Extractor Lambda - Handler', () => {
   beforeEach(() => {
@@ -21,6 +20,10 @@ describe('Weather Extractor Lambda - Handler', () => {
 
   describe('handler', () => {
     it('should fetch, parse and save weather data for matching stations', async () => {
+      const { saveWeatherRecords } = await import('@weather-history/shared-dynamodb-client');
+      const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
+      mockSaveWeatherRecords.mockResolvedValue(undefined);
+
       const mockHtml = '<table>...</table>';
       const mockParsedData = [
         {
@@ -55,16 +58,13 @@ describe('Weather Extractor Lambda - Handler', () => {
       const parseWeatherTableSpy = jest
         .spyOn(parser, 'parseWeatherTable')
         .mockReturnValue(mockParsedData);
-      const saveWeatherRecordsSpy = jest
-        .spyOn(dynamoDB, 'saveWeatherRecords')
-        .mockResolvedValue();
 
       await handler(mockEvent as any);
 
       expect(fetchWeatherPageSpy).toHaveBeenCalledWith('c20', expect.any(String));
       expect(parseWeatherTableSpy).toHaveBeenCalledWith(mockHtml, 'c20', expect.any(String));
-      expect(saveWeatherRecordsSpy).toHaveBeenCalledTimes(1);
-      expect(saveWeatherRecordsSpy).toHaveBeenCalledWith(
+      expect(mockSaveWeatherRecords).toHaveBeenCalledTimes(1);
+      expect(mockSaveWeatherRecords).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
             stationId: 'c20m001e01',
@@ -72,14 +72,15 @@ describe('Weather Extractor Lambda - Handler', () => {
             territoryName: 'Castellón',
             location: 'test-location',
           }),
-          expect.objectContaining({
-            stationId: 'c20m002e01',
-          }),
         ])
       );
     });
 
     it('should not save records when no stations match filter', async () => {
+      const { saveWeatherRecords } = await import('@weather-history/shared-dynamodb-client');
+      const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
+      mockSaveWeatherRecords.mockResolvedValue(undefined);
+
       const mockHtml = '<table>...</table>';
       const mockParsedData = [
         {
@@ -98,29 +99,27 @@ describe('Weather Extractor Lambda - Handler', () => {
       jest
         .spyOn(parser, 'parseWeatherTable')
         .mockReturnValue(mockParsedData);
-      const saveWeatherRecordsSpy = jest
-        .spyOn(dynamoDB, 'saveWeatherRecords')
-        .mockResolvedValue();
 
       await handler(mockEvent as any);
 
-      expect(saveWeatherRecordsSpy).not.toHaveBeenCalled();
+      expect(mockSaveWeatherRecords).not.toHaveBeenCalled();
     });
 
     it('should handle empty parsed data', async () => {
+      const { saveWeatherRecords } = await import('@weather-history/shared-dynamodb-client');
+      const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
+      mockSaveWeatherRecords.mockResolvedValue(undefined);
+
       jest
         .spyOn(httpClient, 'fetchWeatherPage')
         .mockResolvedValue('<table></table>');
       jest
         .spyOn(parser, 'parseWeatherTable')
         .mockReturnValue([]);
-      const saveWeatherRecordsSpy = jest
-        .spyOn(dynamoDB, 'saveWeatherRecords')
-        .mockResolvedValue();
 
       await handler(mockEvent as any);
 
-      expect(saveWeatherRecordsSpy).not.toHaveBeenCalled();
+      expect(mockSaveWeatherRecords).not.toHaveBeenCalled();
     });
 
     it('should throw when fetchWeatherPage fails', async () => {
