@@ -237,8 +237,8 @@ jobs:
             aws s3 sync /tmp/workspace/dist/ s3://weather-history-frontend/ --delete
 
   workflows:
-    weather-history:
-      jobs:
+  weather-history:
+    jobs:
       - test:
           filters:
             branches:
