@@ -212,7 +212,7 @@ jobs:
           name: Invalidate CloudFront cache
           command: |
             DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-              --query "DistributionList.Items[?enabled==`true` && contains(origins.Items[].Id, 'S3-frontend')].Id" \
+              --query "DistributionList.Items[?contains(origins.Items[].Id, 'S3-frontend')].[Id]" \
               --output text)
             if [ -n "$DISTRIBUTION_ID" ]; then
               aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
