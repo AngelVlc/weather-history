@@ -68,24 +68,26 @@ Daily weather data extraction and storage for historical analysis.
 ```
 weather-history/
 ├── packages/
-│   ├── lambda-weather-extractor/    # Main Lambda function (data extraction)
+│   ├── shared-dynamodb-client/       # Shared DynamoDB client
+│   │   └── src/
+│   ├── lambda-weather-extractor/     # Main Lambda function (data extraction)
 │   │   ├── src/
 │   │   ├── tests/
 │   │   ├── events/
 │   │   └── template.yaml
-│   ├── dlq-processor/               # DLQ notification Lambda
+│   ├── dlq-processor/                # DLQ notification Lambda
 │   │   └── src/
-│   ├── lambda-weather-api/                 # API Lambda (serves data to UI)
+│   ├── lambda-weather-api/           # API Lambda (serves data to UI)
 │   │   ├── src/
 │   │   ├── tests/
 │   │   └── template.yaml
-│   └── weather-ui/                  # Frontend (React + Vite)
+│   └── weather-ui/                   # Frontend (React + Vite)
 │       ├── src/
 │       │   ├── pages/
 │       │   ├── components/
 │       │   └── api/
 │       └── public/
-├── terraform/                       # Infrastructure as code
+├── terraform/                        # Infrastructure as code
 ├── config/
 │   └── territories.yaml
 ├── scripts/
@@ -102,6 +104,22 @@ weather-history/
 - AWS CLI
 - SAM CLI
 - Terraform
+
+## Configuration
+
+### Environment Variables
+
+The project uses a shared DynamoDB client. Depending on where you're running:
+
+| Mode | Environment Variables |
+|------|---------------------|
+| **Local → DynamoDB Local** | `DYNAMODB_ENDPOINT=http://localhost:8000`, `AWS_ACCESS_KEY_ID=xxx`, `AWS_SECRET_ACCESS_KEY=xxx` |
+| **Local → AWS DynamoDB** | `AWS_PROFILE=xxx` (uses credentials from `~/.aws/credentials`) |
+| **AWS Lambda** | None (uses IAM role automatically) |
+
+### Shared Packages
+
+- `@weather-history/shared-dynamodb-client` - Shared DynamoDB client used by all Lambdas and scripts
 
 ## Development
 

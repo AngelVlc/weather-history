@@ -2,8 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fetchWeatherPage } from '../packages/lambda-weather-extractor/src/httpClient';
 import { parseWeatherTable } from '../packages/lambda-weather-extractor/src/parser/htmlParser';
-import { saveWeatherRecords } from '../packages/lambda-weather-extractor/src/dynamodb/client';
-import { WeatherRecord } from '../packages/lambda-weather-extractor/src/types';
+import { saveWeatherRecords, WeatherRecord } from '@weather-history/shared-dynamodb-client';
 
 interface Args {
   'start-date': string;

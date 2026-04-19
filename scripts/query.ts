@@ -1,52 +1,5 @@
 import * as readline from 'readline';
-import * as fs from 'fs';
-import {
-  DynamoDBClient,
-  ScanCommand,
-  ScanCommandOutput,
-} from '@aws-sdk/client-dynamodb';
-
-async function loadCredentials() {
-  if (process.env.AWS_PROFILE) {
-    const homeDir = process.env.HOME || process.env.USERPROFILE;
-    const credentialsPath = `${homeDir}/.aws/credentials`;
-
-    if (fs.existsSync(credentialsPath)) {
-      const credsContent = fs.readFileSync(credentialsPath, 'utf8');
-      const profileSection = credsContent.split(`[${process.env.AWS_PROFILE}]`)[1]?.split('[')[0] || '';
-      if (profileSection) {
-        const accessKeyId = profileSection.match(/aws_access_key_id\s*=\s*(\S+)/)?.[1];
-        const secretAccessKey = profileSection.match(/aws_secret_access_key\s*=\s*(\S+)/)?.[1];
-        if (accessKeyId && secretAccessKey) {
-          return { accessKeyId, secretAccessKey };
-        }
-      }
-    }
-  }
-
-  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
-    return {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    };
-  }
-
-  return { accessKeyId: 'dummy', secretAccessKey: 'dummy' };
-}
-
-async function createClient() {
-  const credentials = await loadCredentials();
-  const clientConfig: any = {
-    region: process.env.AWS_REGION || 'us-east-1',
-    credentials,
-  };
-
-  if (process.env.DYNAMODB_ENDPOINT) {
-    clientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
-  }
-
-  return new DynamoDBClient(clientConfig);
-}
+import { createClient, DynamoDBClient, ScanCommand, ScanCommandOutput } from '@weather-history/shared-dynamodb-client';
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'weather-data';
 
@@ -222,7 +175,7 @@ async function main() {
     .alias('h', 'help')
     .parseSync() as Args;
 
-  client = await createClient();
+  client = createClient();
 
   console.log('DynamoDB Endpoint:', process.env.DYNAMODB_ENDPOINT || 'AWS (production)');
   console.log('DynamoDB Table:', TABLE_NAME);
