@@ -83,7 +83,6 @@ resource "aws_lambda_function" "lambda_api" {
   environment {
     variables = {
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.weather_data.name
-      AWS_REGION          = var.aws_region
     }
   }
 
