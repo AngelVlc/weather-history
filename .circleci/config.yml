@@ -235,13 +235,8 @@ jobs:
           command: |
             aws s3 cp /tmp/workspace/frontend.zip s3://weather-history-frontend/frontend.zip
             aws s3 sync /tmp/workspace/dist/ s3://weather-history-frontend/ --delete
-      - run:
-          name: Invalidate CloudFront cache
-          command: |
-            DISTRIBUTION_ID=$(cat /tmp/workspace/cloudfront_id.txt)
-            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
 
-workflows:
+  workflows:
   weather-history:
     jobs:
       - test:
