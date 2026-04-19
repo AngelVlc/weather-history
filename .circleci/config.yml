@@ -211,7 +211,14 @@ jobs:
       - run:
           name: Invalidate CloudFront cache
           command: |
-            aws cloudfront create-invalidation --distribution-id E1VN6Y8DSF7972 --paths "/*"
+            DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+              --query "DistributionList.Items[?enabled==`true` && contains(origins.Items[].Id, 'S3-frontend')].Id" \
+              --output text)
+            if [ -n "$DISTRIBUTION_ID" ]; then
+              aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
+            else
+              echo "No CloudFront distribution found for frontend"
+            fi
 
 workflows:
   weather-history:
