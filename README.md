@@ -471,7 +471,8 @@ In AWS Console → IAM → Roles → Create role:
                 "cloudfront:CreateInvalidation",
                 "cloudfront:GetDistribution",
                 "cloudfront:ListDistributions",
-                "cloudfront:TagResource"
+                "cloudfront:TagResource",
+                "cloudfront:ListTagsForResource"
             ],
             "Resource": "*"
         },
