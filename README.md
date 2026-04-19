@@ -429,7 +429,9 @@ In AWS Console → IAM → Roles → Create role:
                 "arn:aws:s3:::weather-history-terraform-state",
                 "arn:aws:s3:::weather-history-terraform-state/*",
                 "arn:aws:s3:::weather-history-lambda",
-                "arn:aws:s3:::weather-history-lambda/*"
+                "arn:aws:s3:::weather-history-lambda/*",
+                "arn:aws:s3:::weather-history-frontend",
+                "arn:aws:s3:::weather-history-frontend/*"
             ]
         },
         {
