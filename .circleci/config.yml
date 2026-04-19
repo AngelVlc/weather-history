@@ -207,7 +207,7 @@ jobs:
           name: Upload frontend to S3
           command: |
             aws s3 cp /tmp/workspace/frontend.zip s3://weather-history-frontend/frontend.zip
-            aws s3 sync /tmp/workspace/weather-ui/dist/ s3://weather-history-frontend/ --delete
+            aws s3 sync /tmp/workspace/dist/ s3://weather-history-frontend/ --delete
       - run:
           name: Invalidate CloudFront cache
           command: |
