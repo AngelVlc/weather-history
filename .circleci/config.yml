@@ -59,6 +59,33 @@ jobs:
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
+      - run:
+          name: Save CloudFront ID
+          command: terraform -chdir=terraform output -raw frontend_distribution_id > /tmp/cloudfront_id.txt
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - cloudfront_id.txt
+          command: |
+            terraform -chdir=terraform apply \
+              -target=aws_s3_bucket.lambda_code \
+              -target=aws_s3_bucket.frontend \
+              -target=aws_s3_bucket_ownership_controls.frontend \
+              -target=aws_s3_bucket_public_access_block.frontend \
+              -target=aws_s3_bucket_website_configuration.frontend \
+              -target=aws_sqs_queue.dlq \
+              -target=aws_dynamodb_table.weather_data \
+              -target=aws_iam_role.lambda_role \
+              -target=aws_iam_policy.lambda_policy \
+              -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
+              -target=aws_cloudwatch_event_rule.each_territory \
+              -target=aws_cloudwatch_log_group.lambda_logs \
+              -target=aws_iam_role.dlq_processor_role \
+              -target=aws_iam_role_policy.dlq_processor_ses_policy \
+              -target=aws_cloudfront_distribution.frontend \
+              -var-file=terraform.tfvars \
+              -var="notification_email=${NOTIFICATION_EMAIL}" \
+              -auto-approve
 
   upload-lambdas:
     docker:
@@ -211,14 +238,8 @@ jobs:
       - run:
           name: Invalidate CloudFront cache
           command: |
-            DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-              --query "DistributionList.Items[?contains(origins.Items[].Id, 'S3-frontend')].[Id]" \
-              --output text)
-            if [ -n "$DISTRIBUTION_ID" ]; then
-              aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
-            else
-              echo "No CloudFront distribution found for frontend"
-            fi
+            DISTRIBUTION_ID=$(cat /tmp/workspace/cloudfront_id.txt)
+            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
 
 workflows:
   weather-history:
