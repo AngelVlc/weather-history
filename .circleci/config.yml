@@ -54,7 +54,7 @@ jobs:
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
 
-  deploy-lambda:
+  upload-lambdas:
     docker:
       - image: cimg/node:25.9
     steps:
@@ -65,6 +65,9 @@ jobs:
           name: Build Lambda packages
           command: |
             cd packages/lambda-weather-extractor
+            yarn build
+            zip -r dist.zip dist/
+            cd ../lambda-weather-api
             yarn build
             zip -r dist.zip dist/
             cd ../dlq-processor
@@ -79,9 +82,10 @@ jobs:
           name: Upload Lambda packages to S3
           command: |
             aws s3 cp packages/lambda-weather-extractor/dist.zip s3://weather-history-lambda/lambda.zip
+            aws s3 cp packages/lambda-weather-api/dist.zip s3://weather-history-lambda/lambda-weather-api.zip
             aws s3 cp packages/dlq-processor/dist.zip s3://weather-history-lambda/dlq-processor.zip
 
-  deploy-terraform-lambda:
+deploy-lambda-extractor:
     docker:
       - image: cimg/node:25.9
     steps:
@@ -106,7 +110,7 @@ jobs:
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
 
-  deploy-terraform-dlq-processor:
+deploy-lambda-dlq-processor:
     docker:
       - image: cimg/node:25.9
     steps:
@@ -186,21 +190,21 @@ workflows:
           filters:
             branches:
               only: main
-      - deploy-lambda:
+      - upload-lambdas:
           requires:
             - deploy-terraform-infra
           filters:
             branches:
               only: main
-      - deploy-terraform-lambda:
+      - deploy-lambda-extractor:
           requires:
-            - deploy-lambda
+            - upload-lambdas
           filters:
             branches:
               only: main
-      - deploy-terraform-dlq-processor:
+      - deploy-lambda-dlq-processor:
           requires:
-            - deploy-lambda
+            - upload-lambdas
       - build-frontend:
           requires:
             - test

@@ -254,10 +254,10 @@ DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 The deployment is automated via CircleCI on push to `main`:
 
 1. **test** - Runs unit tests
-2. **deploy-terraform-infra** - Creates infrastructure (S3, DynamoDB, IAM, EventBridge)
-3. **deploy-lambda** - Builds and uploads Lambda code to S3
-4. **deploy-terraform-lambda** - Creates Lambda functions and triggers
-5. **deploy-terraform-dlq-processor** - Creates DLQ processor Lambda
+2. **upload-lambdas** - Builds and uploads Lambda code to S3
+3. **deploy-terraform-infra** - Creates infrastructure (S3, DynamoDB, IAM, EventBridge)
+4. **deploy-lambda-extractor** - Creates Lambda function and trigger
+5. **deploy-lambda-dlq-processor** - Creates DLQ processor Lambda
 6. **build-frontend** - Builds React frontend
 7. **deploy-frontend** - Deploys frontend to S3 and invalidates CloudFront
 
