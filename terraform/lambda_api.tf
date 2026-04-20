@@ -101,19 +101,28 @@ resource "aws_lambda_function_url" "lambda_api" {
   authorization_type = "NONE"
 
   cors {
-    allow_credentials = true
+    allow_credentials = false
     allow_origins     = ["*"]
     allow_methods     = ["GET"]
-    allow_headers     = []
+    allow_headers     = ["content-type"]
     max_age           = 7200
   }
 }
 
 resource "aws_lambda_permission" "api_url_public" {
-  statement_id = "FunctionURLPublicAccess"
-  action      = "lambda:InvokeFunctionUrl"
-  function_name = aws_lambda_function.lambda_api.function_name
-  principal   = "*"
+  statement_id           = "FunctionURLAllowPublicAccess"
+  action                 = "lambda:InvokeFunctionUrl"
+  function_name          = aws_lambda_function.lambda_api.function_name
+  principal              = "*"
+  function_url_auth_type = "NONE"
+}
+
+resource "aws_lambda_permission" "api_url_public_invoke" {
+  statement_id             = "FunctionURLInvokeAllowPublicAccess"
+  action                   = "lambda:InvokeFunction"
+  function_name            = aws_lambda_function.lambda_api.function_name
+  principal                = "*"
+  invoked_via_function_url = true
 }
 
 output "lambda_api_url" {

@@ -201,6 +201,7 @@ jobs:
               -target=aws_lambda_function.lambda_api \
               -target=aws_lambda_function_url.lambda_api \
               -target=aws_lambda_permission.api_url_public \
+              -target=aws_lambda_permission.api_url_public_invoke \
               -target=aws_iam_role.lambda_api_role \
               -target=aws_iam_policy.lambda_api_policy \
               -target=aws_iam_role_policy_attachment.lambda_api_policy_attachment \
