@@ -1,5 +1,6 @@
 import * as readline from 'readline';
-import { createClient, DynamoDBClient, ScanCommand, ScanCommandOutput } from '@weather-history/shared-dynamodb-client';
+import { DynamoDBClient, ScanCommand, ScanCommandOutput } from '@aws-sdk/client-dynamodb';
+import { createClient } from '@weather-history/shared-dynamodb-client';
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'weather-data';
 
