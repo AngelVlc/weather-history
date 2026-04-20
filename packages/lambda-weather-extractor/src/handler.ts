@@ -2,31 +2,6 @@ import { EventBridgeEvent, WeatherRecord } from './types';
 import { fetchWeatherPage } from './httpClient';
 import { parseWeatherTable } from './parser/htmlParser';
 import { saveWeatherRecords } from './dynamodb/client';
-import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront';
-
-const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID;
-
-async function invalidateCache(): Promise<void> {
-  if (!CLOUDFRONT_DISTRIBUTION_ID) {
-    console.log('CloudFront distribution ID not configured, skipping cache invalidation');
-    return;
-  }
-
-  const client = new CloudFrontClient({ region: process.env.AWS_REGION || 'us-east-1' });
-  const command = new CreateInvalidationCommand({
-    DistributionId: CLOUDFRONT_DISTRIBUTION_ID,
-    InvalidationBatch: {
-      CallerReference: `-weather-history-${Date.now()}`,
-      Paths: {
-        Quantity: 1,
-        Items: ['/*'],
-      },
-    },
-  });
-
-  await client.send(command);
-  console.log(`CloudFront cache invalidated for distribution ${CLOUDFRONT_DISTRIBUTION_ID}`);
-}
 
 export const handler = async (event: EventBridgeEvent): Promise<void> => {
   console.log('Event received:', JSON.stringify(event));
@@ -69,7 +44,6 @@ export const handler = async (event: EventBridgeEvent): Promise<void> => {
   if (records.length > 0) {
     await saveWeatherRecords(records);
     console.log(`Saved ${records.length} records to DynamoDB`);
-    await invalidateCache();
   } else {
     console.log('No records to save');
   }
