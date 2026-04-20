@@ -228,7 +228,7 @@ jobs:
       - run:
           name: Build frontend
           command: |
-            VITE_API_URL=$(cat /tmp/workspace/lambda_api_url.txt) cd packages/weather-ui && yarn build
+            cd /home/circleci/project/packages/weather-ui && VITE_API_URL=$(cat /tmp/workspace/lambda_api_url.txt) yarn build
       - run:
           name: Create archive
           command: |
