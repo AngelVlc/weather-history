@@ -11,8 +11,7 @@
     "dev:stop": "docker compose down",
     "dev:setup": "./scripts/dev-setup.sh",
     "populate": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/populate.ts",
-    "query": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/query.ts",
-    "invalidate-cache": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/invalidate-cache.ts"
+    "query": "ts-node --project packages/lambda-weather-extractor/tsconfig.json scripts/query.ts"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"
