@@ -15,6 +15,11 @@ jobs:
           name: Install dependencies
           command: yarn install
       - run:
+          name: Build shared packages
+          command: |
+            yarn workspace @weather-history/shared-types build
+            yarn workspace @weather-history/shared-dynamodb-client build
+      - run:
           name: Run tests
           command: |
             yarn workspace @weather-history/lambda-weather-extractor test
@@ -95,6 +100,11 @@ jobs:
       - run:
           name: Install dependencies
           command: yarn install
+      - run:
+          name: Build shared packages
+          command: |
+            yarn workspace @weather-history/shared-types build
+            yarn workspace @weather-history/shared-dynamodb-client build
       - run:
           name: Build Lambda packages
           command: |
