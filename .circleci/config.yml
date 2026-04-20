@@ -50,6 +50,7 @@ jobs:
               -target=aws_s3_bucket.frontend \
               -target=aws_s3_bucket_ownership_controls.frontend \
               -target=aws_s3_bucket_public_access_block.frontend \
+              -target=aws_s3_bucket_policy.frontend \
               -target=aws_s3_bucket_website_configuration.frontend \
               -target=aws_sqs_queue.dlq \
               -target=aws_dynamodb_table.weather_data \
@@ -77,6 +78,7 @@ jobs:
               -target=aws_s3_bucket.frontend \
               -target=aws_s3_bucket_ownership_controls.frontend \
               -target=aws_s3_bucket_public_access_block.frontend \
+              -target=aws_s3_bucket_policy.frontend \
               -target=aws_s3_bucket_website_configuration.frontend \
               -target=aws_sqs_queue.dlq \
               -target=aws_dynamodb_table.weather_data \
