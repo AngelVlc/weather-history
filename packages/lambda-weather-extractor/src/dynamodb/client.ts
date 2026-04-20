@@ -1,4 +1,4 @@
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { createClient } from '@weather-history/shared-dynamodb-client';
 import { WeatherRecord } from '@weather-history/shared-types';
 

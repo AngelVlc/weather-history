@@ -1,4 +1,4 @@
-import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { ScanCommand } from '@aws-sdk/client-dynamodb';
 import { createClient } from '@weather-history/shared-dynamodb-client';
 import { WeatherRecord, StationInfo } from '@weather-history/shared-types';
 
