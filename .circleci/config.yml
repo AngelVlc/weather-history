@@ -41,7 +41,10 @@ jobs:
           role_session_name: "circleci-terraform-deploy"
       - run:
           name: Terraform Init
-          command: terraform -chdir=terraform init -reconfigure
+          command: |
+            terraform -chdir=terraform version
+            terraform -chdir=terraform init -reconfigure -upgrade
+            terraform -chdir=terraform providers
       - run:
           name: Terraform Apply Infrastructure
           command: |
@@ -230,11 +233,14 @@ jobs:
       - run:
           name: Build frontend
           command: |
+            echo "VITE_API_URL=$(cat /tmp/workspace/lambda_api_url.txt)"
             cd /home/circleci/project/packages/weather-ui && VITE_API_URL=$(cat /tmp/workspace/lambda_api_url.txt) yarn build
       - run:
           name: Create archive
           command: |
             cd packages/weather-ui
+            grep -r "VITE_API_URL" dist/ || echo "VITE_API_URL not found in dist"
+            cat dist/index.html | grep -o "stations" || echo "API URL not in index.html"
             zip -r frontend.zip dist/
       - persist_to_workspace:
           root: packages/weather-ui
