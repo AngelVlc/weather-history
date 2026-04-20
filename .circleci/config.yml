@@ -206,20 +206,29 @@ jobs:
               -target=aws_cloudwatch_log_group.lambda_api_logs \
               -var-file=terraform.tfvars \
               -auto-approve
+      - run:
+          name: Get Lambda API URL
+          command: |
+            terraform -chdir=terraform output -raw lambda_api_url > /tmp/lambda_api_url.txt
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - lambda_api_url.txt
 
   build-frontend:
     docker:
       - image: cimg/node:25.9
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Install dependencies
           command: yarn install
       - run:
           name: Build frontend
           command: |
-            cd packages/weather-ui
-            yarn build
+            VITE_API_URL=$(cat /tmp/workspace/lambda_api_url.txt) cd packages/weather-ui && yarn build
       - run:
           name: Create archive
           command: |
@@ -258,6 +267,7 @@ workflows:
       - build-frontend:
           requires:
             - test
+            - deploy-lambda-api
       - deploy-terraform-infra:
           requires:
             - test
