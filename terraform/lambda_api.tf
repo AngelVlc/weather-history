@@ -109,6 +109,13 @@ resource "aws_lambda_function_url" "lambda_api" {
   }
 }
 
+resource "aws_lambda_permission" "api_url_public" {
+  statement_id = "FunctionURLPublicAccess"
+  action      = "lambda:InvokeFunctionUrl"
+  function_name = aws_lambda_function.lambda_api.function_name
+  principal   = "*"
+}
+
 output "lambda_api_url" {
   value = aws_lambda_function_url.lambda_api.function_url
 }
