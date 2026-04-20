@@ -167,3 +167,8 @@ This prevents infinite retry loops if the Lambda is not working correctly.
 - Push feature branches to remote for review
 - Wait for explicit approval before merge operations
 - Same applies for pushing to main: never push directly to main without approval
+
+### Deployment
+- Never run terraform apply or other deployment commands manually
+- All deployments must be done through CI workflow
+- Wait for CI to apply infrastructure changes
