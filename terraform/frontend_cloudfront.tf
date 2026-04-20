@@ -1,7 +1,7 @@
 # CloudFront distribution for frontend (without custom domain)
 resource "aws_cloudfront_distribution" "frontend" {
   origin {
-    domain_name = aws_s3_bucket_website_configuration.frontend.website_domain
+    domain_name = "${aws_s3_bucket.frontend.id}.s3-website.${var.aws_region}.amazonaws.com"
     origin_id   = "S3-frontend"
 
     custom_origin_config {
