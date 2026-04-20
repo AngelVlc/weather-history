@@ -162,11 +162,12 @@ This prevents infinite retry loops if the Lambda is not working correctly.
 
 ## Git Conventions
 
-### Never merge to main without permission
-- Always ask for user confirmation before merging to main
-- Push feature branches to remote for review
-- Wait for explicit approval before merge operations
-- Same applies for pushing to main: never push directly to main without approval
+### Always ask before:
+- Merging to main
+- Pushing to main or any branch that will trigger deployment
+- Running git commit (unless it's a fix I explicitly asked for)
+
+When in doubt, ask first.
 
 ### Deployment
 - Never run terraform apply or other deployment commands manually
