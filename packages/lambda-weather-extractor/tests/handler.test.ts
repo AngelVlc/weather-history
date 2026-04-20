@@ -4,8 +4,11 @@ import * as parser from '../src/parser/htmlParser';
 
 jest.mock('../src/httpClient');
 jest.mock('../src/parser/htmlParser');
+jest.mock('../src/dynamodb/client', () => ({
+  saveWeatherRecords: jest.fn(),
+}));
 
-import { saveWeatherRecords } from '@weather-history/shared-dynamodb-client';
+import { saveWeatherRecords } from '../src/dynamodb/client';
 
 const mockSaveWeatherRecords = saveWeatherRecords as jest.Mock;
 

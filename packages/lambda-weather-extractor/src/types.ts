@@ -1,3 +1,5 @@
+export { WeatherRecord } from '@weather-history/shared-types';
+
 export interface Territory {
   id: string;
   name: string;
@@ -9,21 +11,6 @@ export interface Territory {
 
 export interface TerritoryConfig {
   territories: Territory[];
-}
-
-export interface WeatherRecord {
-  pk: string;
-  sk: string;
-  territory: string;
-  territoryName: string;
-  location: string;
-  date: string;
-  stationId: string;
-  stationName: string;
-  precipitation: number;
-  tempMin: number;
-  tempMax: number;
-  tempAvg: number;
 }
 
 export interface StationData {

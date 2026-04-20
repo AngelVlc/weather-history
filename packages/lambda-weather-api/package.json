@@ -4,7 +4,7 @@
   "description": "Lambda function to serve weather data via API",
   "main": "dist/index.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js --external:aws-sdk",
+    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js --external:aws-sdk --external:jest",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "start": "sam local start-api --docker-network weather-history_weather-history-network --port 3001 -n events/env.json",
@@ -14,7 +14,8 @@
     "@aws-sdk/client-dynamodb": "^3.0.0",
     "@aws-sdk/credential-providers": "^3.1032.0",
     "@aws-sdk/lib-dynamodb": "^3.0.0",
-    "@weather-history/shared-dynamodb-client": "*"
+    "@weather-history/shared-dynamodb-client": "*",
+    "@weather-history/shared-types": "*"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.0",

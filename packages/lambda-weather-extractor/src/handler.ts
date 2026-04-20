@@ -1,7 +1,7 @@
 import { EventBridgeEvent, WeatherRecord } from './types';
 import { fetchWeatherPage } from './httpClient';
 import { parseWeatherTable } from './parser/htmlParser';
-import { saveWeatherRecords } from '@weather-history/shared-dynamodb-client';
+import { saveWeatherRecords } from './dynamodb/client';
 import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront';
 
 const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID;

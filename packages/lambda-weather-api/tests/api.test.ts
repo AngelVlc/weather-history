@@ -59,7 +59,7 @@ describe('Weather API Handler', () => {
   describe('GET /stations/:stationId', () => {
     it('should return station data for given days', async () => {
       mockQueryStationData.mockResolvedValue([
-        { stationId: 'c20m236e01', stationName: 'Sumacàrcer', territory: 'c20', territoryName: 'Ribera Alta', date: '2026-04-16', tempMax: 27.2, tempMin: 12.2, tempAvg: 19.4, precipitation: 0 },
+        { pk: 'c20#2026-04-16', sk: 'c20m236e01', territory: 'c20', territoryName: 'Ribera Alta', location: 'test', date: '2026-04-16', stationId: 'c20m236e01', stationName: 'Sumacàrcer', tempMax: 27.2, tempMin: 12.2, tempAvg: 19.4, precipitation: 0 },
       ]);
 
       const response = await handler({
