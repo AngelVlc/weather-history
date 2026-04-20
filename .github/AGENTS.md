@@ -159,3 +159,11 @@ When testing the DLQ processor:
    ```
 
 This prevents infinite retry loops if the Lambda is not working correctly.
+
+## Git Conventions
+
+### Never merge to main without permission
+- Always ask for user confirmation before merging to main
+- Push feature branches to remote for review
+- Wait for explicit approval before merge operations
+- Same applies for pushing to main: never push directly to main without approval
