@@ -2,9 +2,23 @@ territories:
   - id: c20
     name: Ribera Alta
     location: Sumacarcer
-    cronHour: 4
+    cronHour: 3
     timezone: Europe/Madrid
     stationIds:
       - c20m236e01
       - c20m236e02
-      - c20m236e03
+  - id: c15
+    name: Valencia
+    location: Valencia
+    cronHour: 1
+    timezone: Europe/Madrid
+    stationIds:
+      - c15m250e34
+  - id: c21
+    name: Ribera Baja
+    location: Sueca
+    cronHour: 5
+    timezone: Europe/Madrid
+    stationIds:
+      - c21m235e02
+
