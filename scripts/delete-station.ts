@@ -1,5 +1,5 @@
 import * as readline from 'readline';
-import { DynamoDBClient, DeleteItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, DeleteItemCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { createClient } from '@weather-history/shared-dynamodb-client';
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'weather-data';
@@ -18,8 +18,7 @@ async function queryStationRecords(stationId: string): Promise<{ pk: string; sk:
   do {
     const params: any = {
       TableName: TABLE_NAME,
-      IndexName: 'stationId-date-index',
-      KeyConditionExpression: 'stationId = :sid',
+      FilterExpression: 'stationId = :sid',
       ExpressionAttributeValues: {
         ':sid': { S: stationId },
       },
@@ -30,7 +29,7 @@ async function queryStationRecords(stationId: string): Promise<{ pk: string; sk:
       params.ExclusiveStartKey = lastKey;
     }
 
-    const command = new QueryCommand(params);
+    const command = new ScanCommand(params);
     const result = await client.send(command);
 
     if (result.Items) {
@@ -81,28 +80,26 @@ async function deleteRecords(
   const client = createClient();
   let deleted = 0;
 
-  for (let i = 0; i < records.length; i += 25) {
-    const batch = records.slice(i, i + 25);
+  for (const record of records) {
+    const command = new DeleteItemCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        pk: { S: record.pk },
+        sk: { S: record.sk },
+      },
+    });
 
-    for (const record of batch) {
-      const command = new DeleteItemCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          pk: { S: record.pk },
-          sk: { S: record.sk },
-        },
-      });
-
-      try {
-        await client.send(command);
-        deleted++;
-        console.log(`Deleted: ${record.pk} / ${record.sk}`);
-      } catch (error) {
-        console.error(`Failed to delete ${record.pk} / ${record.sk}:`, error);
-      }
+    try {
+      await client.send(command);
+      deleted++;
+      console.log(`Deleted: ${record.pk} / ${record.sk}`);
+    } catch (error) {
+      console.error(`Failed to delete ${record.pk} / ${record.sk}:`, error);
     }
 
-    console.log(`Progress: ${deleted}/${records.length}`);
+    if (deleted % 10 === 0) {
+      console.log(`Progress: ${deleted}/${records.length}`);
+    }
   }
 
   return deleted;
