@@ -10,29 +10,37 @@ interface ApiGatewayEvent {
 }
 
 export const handler = async (event: LambdaEvent | ApiGatewayEvent): Promise<LambdaResponse> => {
+  const startTime = Date.now();
+
   console.log('Event received:', JSON.stringify(event));
 
-  // Support both Lambda Function URL (rawPath) and API Gateway (path)
   const path = (event as any).rawPath || (event as any).path || '/';
+  const method = (event as any).httpMethod || (event as any).requestContext?.http?.method || 'GET';
   const queryStringParameters = (event as any).queryStringParameters || {};
   const pathParameters = (event as any).pathParameters || {};
 
+  let response: LambdaResponse;
+
   if (path === '/stations') {
-    return getStationsHandler();
+    response = await getStationsHandler();
+  } else {
+    const stationIdMatch = path.match(/^\/stations\/([^/]+)$/);
+    if (stationIdMatch) {
+      const stationId = stationIdMatch[1];
+      const days = parseInt(queryStringParameters?.days || '7', 10);
+      response = await getStationDataHandler(stationId, days);
+    } else {
+      response = {
+        statusCode: 404,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Not found' }),
+      };
+    }
   }
 
-  const stationIdMatch = path.match(/^\/stations\/([^/]+)$/);
-  if (stationIdMatch) {
-    const stationId = stationIdMatch[1];
-    const days = parseInt(queryStringParameters?.days || '7', 10);
-    return await getStationDataHandler(stationId, days);
-  }
+  console.log(`Request: ${method} ${path} - Status: ${response.statusCode} - Latency: ${Date.now() - startTime}ms`);
 
-  return {
-    statusCode: 404,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ error: 'Not found' }),
-  };
+  return response;
 };
 
 async function getStationsHandler(): Promise<LambdaResponse> {
