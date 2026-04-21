@@ -207,6 +207,7 @@ yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 |--------|-------------|----------|
 | `--start-date` | Start date (YYYY-MM-DD) | Yes |
 | `--end-date` | End date (YYYY-MM-DD), defaults to start-date | No |
+| `--sleep` | Seconds to wait between requests | No (default: 0) |
 | `AWS_PROFILE` | AWS profile for production | No |
 | `AWS_REGION` | AWS region (required for production) | No |
 | `DYNAMODB_ENDPOINT` | DynamoDB endpoint (local only) | No |

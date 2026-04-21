@@ -8,6 +8,7 @@ interface Args {
   'start-date': string;
   'end-date'?: string;
   local: boolean;
+  sleep: number;
   help: boolean;
 }
 
@@ -40,7 +41,8 @@ function getDatesInRange(startDate: string, endDate: string): string[] {
 async function populate(
   startDate: string,
   endDate: string,
-  territories: Territory[]
+  territories: Territory[],
+  sleepSeconds: number
 ): Promise<void> {
   const dates = getDatesInRange(startDate, endDate);
   console.log(
@@ -58,6 +60,11 @@ async function populate(
       try {
         const html = await fetchWeatherPage(territory.id, date);
         console.log(`    Fetched HTML, length: ${html.length} characters`);
+
+        if (sleepSeconds > 0) {
+          console.log(`    Sleeping ${sleepSeconds}s...`);
+          await new Promise((resolve) => setTimeout(resolve, sleepSeconds * 1000));
+        }
 
         const allStationData = parseWeatherTable(html, territory.id, date);
         console.log(`    Parsed ${allStationData.length} stations total`);
@@ -153,6 +160,11 @@ const argv = require('yargs')
     type: 'boolean',
     default: false,
   })
+  .option('sleep', {
+    describe: 'Seconds to wait between requests',
+    type: 'number',
+    default: 0,
+  })
   .help()
   .alias('h', 'help')
   .parseSync() as Args;
@@ -165,7 +177,7 @@ console.log('DynamoDB Table:', process.env.DYNAMODB_TABLE_NAME || 'weather-data 
 const territories = loadTerritories();
 console.log('Loaded territories:', territories.map((t) => t.id).join(', '));
 
-populate(argv['start-date'], endDate, territories)
+populate(argv['start-date'], endDate, territories, argv['sleep'])
   .then(() => {
     console.log('Populate completed successfully');
     process.exit(0);
