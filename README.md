@@ -22,6 +22,9 @@ Daily weather data extraction and storage for historical analysis.
 - [Query Data](#query-data)
   - [Usage](#usage-1)
   - [Options](#options-1)
+- [Delete Station Records](#delete-station-records)
+  - [Usage](#usage-2)
+  - [Options](#options-2)
 - [Deployment](#deployment)
   - [Prerequisites](#prerequisites-1)
   - [Deploy](#deploy)
@@ -257,6 +260,32 @@ DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 **Controls:**
 - Press Enter to see next page
 - Press "q" to quit
+
+## Delete Station Records
+
+Use the delete-station script to delete all records for a specific station ID.
+
+### Usage
+
+```bash
+# Local (requires AWS credentials for local DynamoDB)
+DYNAMODB_ENDPOINT=http://localhost:8000 \
+AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn delete-station --station-id c20m236e01
+
+# Production (AWS with profile)
+AWS_PROFILE=xxxx AWS_REGION=us-east-1 \
+DYNAMODB_TABLE_NAME=weather-data \
+yarn delete-station --station-id c20m236e01
+```
+
+### Options
+
+| Option | Description | Required |
+|--------|-------------|----------|
+| `--station-id` | Station ID to delete records for | Yes |
+| `--yes` | Skip confirmation prompt | No (default: false) |
 
 ## Deployment
 
