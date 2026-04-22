@@ -39,6 +39,7 @@ export function PrecipitationChart({ data }: PrecipitationChartProps) {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -50,5 +51,9 @@ export function PrecipitationChart({ data }: PrecipitationChartProps) {
     },
   };
 
-  return <Bar data={chartData} options={options} />;
+  return (
+    <div className="h-80">
+      <Bar data={chartData} options={options} />
+    </div>
+  );
 }

@@ -57,6 +57,7 @@ export function TemperatureChart({ data }: TemperatureChartProps) {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -68,5 +69,9 @@ export function TemperatureChart({ data }: TemperatureChartProps) {
     },
   };
 
-  return <Line data={chartData} options={options} />;
+  return (
+    <div className="h-80">
+      <Line data={chartData} options={options} />
+    </div>
+  );
 }
