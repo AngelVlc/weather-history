@@ -38,7 +38,10 @@ export const handler = async (event: LambdaEvent | ApiGatewayEvent): Promise<Lam
     }
   }
 
-  console.log(`Request: ${method} ${path} - Status: ${response.statusCode} - Latency: ${Date.now() - startTime}ms`);
+  const queryString = Object.keys(queryStringParameters).length > 0
+    ? '?' + new URLSearchParams(queryStringParameters).toString()
+    : '';
+  console.log(`Started ${method} ${path}${queryString} - Status: ${response.statusCode} - Latency: ${Date.now() - startTime}ms`);
 
   return response;
 };
