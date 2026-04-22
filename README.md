@@ -37,9 +37,6 @@ Daily weather data extraction and storage for historical analysis.
   - [Caching](#caching)
 - [Resilience](#resilience)
   - [What happens when an event fails?](#what-happens-when-an-event-fails)
-  - [Testing DLQ notifications](#testing-dlq-notifications)
-  - [Investigating DLQ failures](#investigating-dlq-failures)
-  - [Redriving failed events](#redriving-failed-events)
 - [CircleCI OIDC Setup](#circleci-oidc-setup)
   - [1. Create IAM Role](#1-create-iam-role)
   - [2. Required Policy](#2-required-policy)
@@ -79,8 +76,7 @@ weather-history/
 │   │   ├── tests/
 │   │   ├── events/
 │   │   └── template.yaml
-│   ├── dlq-processor/                # DLQ notification Lambda
-│   │   └── src/
+│   │   └── # (removed)
 │   ├── lambda-weather-api/           # API Lambda (serves data to UI)
 │   │   ├── src/
 │   │   ├── tests/
@@ -311,9 +307,8 @@ The deployment is automated via CircleCI on push to `main`:
 2. **upload-lambdas** - Builds and uploads Lambda code to S3
 3. **deploy-terraform-infra** - Creates infrastructure (S3, DynamoDB, IAM, EventBridge)
 4. **deploy-lambda-extractor** - Creates Lambda function and trigger
-5. **deploy-lambda-dlq-processor** - Creates DLQ processor Lambda
-6. **build-frontend** - Builds React frontend
-7. **deploy-frontend** - Deploys frontend to S3 and invalidates CloudFront
+5. **build-frontend** - Builds React frontend
+6. **deploy-frontend** - Deploys frontend to S3 and invalidates CloudFront
 
 ## Database
 
@@ -398,42 +393,8 @@ Both endpoints include `Cache-Control` headers:
 1. Lambda receives event from EventBridge
 2. Lambda fails (API down, parsing error, etc.)
 3. EventBridge retries up to 3 times
-4. After all retries fail, event goes to DLQ (SQS)
-5. DLQ Processor Lambda detects new message
-6. Email sent to configured notification address
-7. Message stays in DLQ for investigation
-
-### Testing DLQ notifications
-
-To test email notifications without waiting for retries:
-
-1. Go to AWS Console → SQS → `weather-extractor-dlq`
-2. Click "Send message"
-3. Paste a test event JSON (EventBridge format):
-   ```json
-   {
-     "Message": "{\"territory\":\"test\",\"territoryName\":\"Test Territory\",\"location\":\"Test Location\",\"stationIds\":[\"test001\",\"test002\"]}"
-   }
-   ```
-4. The DLQ processor will send an email notification within ~5 seconds
-
-This bypasses the retry mechanism and tests the notification flow immediately.
-
-### Investigating DLQ failures
-
-1. Go to AWS Console → SQS → `weather-extractor-dlq`
-2. View messages to see event details and error
-3. Check CloudWatch Logs `/aws/lambda/weather-extractor` for error details
-4. Fix the issue (e.g., AVAMET is back online)
-
-### Redriving failed events
-
-1. After fixing the issue, go to AWS Console → SQS → `weather-extractor-dlq`
-2. Click "Start DLQ redrive" or "Redrive messages"
-3. Select the messages to reprocess
-4. Lambda will process them again
-
-Note: The DLQ processor sends email notifications but does NOT delete messages, allowing for investigation and manual redrive.
+4. After all retries fail, the event is lost (no DLQ configured)
+5. Check CloudWatch Logs `/aws/lambda/weather-extractor` for error details
 
 ## CircleCI OIDC Setup
 
@@ -492,9 +453,7 @@ In AWS Console → IAM → Roles → Create role:
             ],
             "Resource": [
                 "arn:aws:lambda:*:*:function:weather-extractor",
-                "arn:aws:lambda:*:*:function:weather-api",
-                "arn:aws:lambda:*:*:function:weather-extractor-dlq-processor",
-                "arn:aws:lambda:*:*:event-source-mapping:*"
+                "arn:aws:lambda:*:*:function:weather-api"
             ]
         },
         {
@@ -512,24 +471,7 @@ In AWS Console → IAM → Roles → Create role:
             ],
             "Resource": "*"
         },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ses:SendEmail",
-                "ses:SendRawEmail",
-                "ses:SendTemplatedEmail"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "sqs:*"
-            ],
-            "Resource": [
-                "arn:aws:sqs:*:*:weather-extractor-dlq"
-            ]
-        },
+        
         {
             "Effect": "Allow",
             "Action": [
@@ -584,4 +526,3 @@ In AWS Console → IAM → Roles → Create role:
 In CircleCI → Project Settings → Environment Variables:
 
 - Add `OIDC_ROLE_ARN` with the ARN of the role created above (e.g., `arn:aws:iam::123456789:role/CircleCI-WeatherHistory-Deploy`)
-- Add `NOTIFICATION_EMAIL` with the email address for DLQ failure notifications (must be verified in AWS SES)

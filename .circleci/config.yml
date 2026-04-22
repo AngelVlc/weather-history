@@ -55,15 +55,12 @@ jobs:
               -target=aws_s3_bucket_public_access_block.frontend \
               -target=aws_s3_bucket_policy.frontend \
               -target=aws_s3_bucket_website_configuration.frontend \
-              -target=aws_sqs_queue.dlq \
               -target=aws_dynamodb_table.weather_data \
               -target=aws_iam_role.lambda_role \
               -target=aws_iam_policy.lambda_policy \
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
               -target=aws_cloudwatch_event_rule.each_territory \
               -target=aws_cloudwatch_log_group.lambda_logs \
-              -target=aws_iam_role.dlq_processor_role \
-              -target=aws_iam_role_policy.dlq_processor_ses_policy \
               -target=aws_cloudfront_distribution.frontend \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
@@ -83,15 +80,12 @@ jobs:
               -target=aws_s3_bucket_public_access_block.frontend \
               -target=aws_s3_bucket_policy.frontend \
               -target=aws_s3_bucket_website_configuration.frontend \
-              -target=aws_sqs_queue.dlq \
               -target=aws_dynamodb_table.weather_data \
               -target=aws_iam_role.lambda_role \
               -target=aws_iam_policy.lambda_policy \
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
               -target=aws_cloudwatch_event_rule.each_territory \
               -target=aws_cloudwatch_log_group.lambda_logs \
-              -target=aws_iam_role.dlq_processor_role \
-              -target=aws_iam_role_policy.dlq_processor_ses_policy \
               -target=aws_cloudfront_distribution.frontend \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
@@ -119,10 +113,6 @@ jobs:
             cd ../lambda-weather-api
             yarn build
             zip -r dist.zip dist/
-            cd ../dlq-processor
-            yarn install
-            yarn build
-            zip -r dist.zip dist/
       - aws-cli/setup:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
@@ -132,7 +122,6 @@ jobs:
           command: |
             aws s3 cp packages/lambda-weather-extractor/dist.zip s3://weather-history-lambda/lambda.zip
             aws s3 cp packages/lambda-weather-api/dist.zip s3://weather-history-lambda/lambda-weather-api.zip
-            aws s3 cp packages/dlq-processor/dist.zip s3://weather-history-lambda/dlq-processor.zip
 
   deploy-lambda-extractor:
     docker:
@@ -155,30 +144,6 @@ jobs:
               -target=aws_lambda_function.weather_extractor \
               -target=aws_cloudwatch_event_target.lambda_target \
               -target=aws_lambda_permission.allow_eventbridge \
-              -var-file=terraform.tfvars \
-              -var="notification_email=${NOTIFICATION_EMAIL}" \
-              -auto-approve
-
-  deploy-lambda-dlq-processor:
-    docker:
-      - image: cimg/node:25.9
-    steps:
-      - checkout
-      - terraform/install:
-          terraform_version: 1.14.8
-      - aws-cli/setup:
-          role_arn: ${OIDC_ROLE_ARN}
-          region: us-east-1
-          role_session_name: "circleci-terraform-deploy"
-      - run:
-          name: Terraform Init
-          command: terraform -chdir=terraform init -reconfigure
-      - run:
-          name: Terraform Apply DLQ Processor
-          command: |
-            terraform -chdir=terraform apply \
-              -target=aws_lambda_function.dlq_processor \
-              -target=aws_lambda_event_source_mapping.dlq_processor_trigger \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve
@@ -298,9 +263,6 @@ workflows:
           filters:
             branches:
               only: main
-      - deploy-lambda-dlq-processor:
-          requires:
-            - upload-lambdas
       - deploy-lambda-api:
           requires:
             - upload-lambdas
