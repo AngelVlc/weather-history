@@ -43,7 +43,8 @@ async function populate(
   startDate: string,
   endDate: string,
   territories: Territory[],
-  sleepSeconds: number
+  sleepSeconds: number,
+  requestedStations?: string[]
 ): Promise<void> {
   const dates = getDatesInRange(startDate, endDate);
   console.log(
@@ -70,8 +71,11 @@ async function populate(
         const allStationData = parseWeatherTable(html, territory.id, date);
         console.log(`    Parsed ${allStationData.length} stations total`);
 
+        const targetStations = requestedStations
+          ? territory.stationIds.filter(sid => requestedStations.includes(sid))
+          : territory.stationIds;
         const filteredStationData = allStationData.filter((station) =>
-          territory.stationIds.includes(station.stationId)
+          targetStations.includes(station.stationId)
         );
         console.log(`    Filtered to ${filteredStationData.length} matching stations`);
 
@@ -183,15 +187,17 @@ const territories = loadTerritories();
 console.log('Loaded territories:', territories.map((t) => t.id).join(', '));
 
 let filteredTerritories = territories;
+let requestedStations: string[] | undefined;
 if (argv['stations']) {
-  const requestedStations = argv['stations'].split(',').map(s => s.trim());
+  requestedStations = argv['stations'].split(',').map(s => s.trim());
   filteredTerritories = territories.filter(t =>
-    t.stationIds.some(sid => requestedStations.includes(sid))
+    t.stationIds.some(sid => requestedStations!.includes(sid))
   );
   console.log('Filtered territories:', filteredTerritories.map((t) => t.id).join(', '));
+  console.log('Requested stations:', requestedStations.join(', '));
 }
 
-populate(argv['start-date'], endDate, filteredTerritories, argv['sleep'])
+populate(argv['start-date'], endDate, filteredTerritories, argv['sleep'], requestedStations)
   .then(() => {
     console.log('Populate completed successfully');
     process.exit(0);
