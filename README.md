@@ -208,6 +208,7 @@ yarn populate --start-date 2025-04-01 --end-date 2025-04-15
 | `--start-date` | Start date (YYYY-MM-DD) | Yes |
 | `--end-date` | End date (YYYY-MM-DD), defaults to start-date | No |
 | `--sleep` | Seconds to wait between requests | No (default: 0) |
+| `--stations` | Comma-separated list of station IDs to process | No |
 | `AWS_PROFILE` | AWS profile for production | No |
 | `AWS_REGION` | AWS region (required for production) | No |
 | `DYNAMODB_ENDPOINT` | DynamoDB endpoint (local only) | No |
@@ -227,23 +228,26 @@ DYNAMODB_TABLE_NAME=weather-data \
 yarn query
 
 # Production (with AWS profile)
-AWS_PROFILE=personal AWS_REGION=us-east-1 \
+AWS_PROFILE=personal \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn query
 
 # Custom page size
 DYNAMODB_TABLE_NAME=weather-data yarn query --page-size 5
 
-# Filter by territory and date range
+# Filter by stations and date range
+AWS_PROFILE=personal \
 DYNAMODB_TABLE_NAME=weather-data yarn query \
-  --territory c20 \
+  --stations c20m236e01,c20m236e02 \
   --start-date 2026-04-01 \
   --end-date 2026-04-15
 
 # Ascending order (oldest first)
+AWS_PROFILE=personal \
 DYNAMODB_TABLE_NAME=weather-data yarn query --order asc
 
 # Raw DynamoDB output (for debugging)
+AWS_PROFILE=personal \
 DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 ```
 
@@ -252,7 +256,7 @@ DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--page-size` | Number of records per page | 10 |
-| `--territory` | Filter by territory ID | all |
+| `--stations` | Comma-separated list of station IDs | all |
 | `--start-date` | Filter by start date (YYYY-MM-DD) | - |
 | `--end-date` | Filter by end date (YYYY-MM-DD) | - |
 | `--order` | Sort order (`asc` or `desc`) | desc |
@@ -276,7 +280,7 @@ DYNAMODB_TABLE_NAME=weather-data \
 yarn delete-station --station-id c20m236e01
 
 # Production (AWS with profile)
-AWS_PROFILE=xxxx AWS_REGION=us-east-1 \
+AWS_PROFILE=xxxx \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn delete-station --station-id c20m236e01
 ```

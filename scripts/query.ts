@@ -8,7 +8,7 @@ interface Args {
   'page-size': number;
   'start-date'?: string;
   'end-date'?: string;
-  territory?: string;
+  stations?: string;
   order?: 'asc' | 'desc';
   raw?: boolean;
   help: boolean;
@@ -25,7 +25,7 @@ let allItems: any[] = [];
 let currentIndex = 0;
 
 async function fetchAllData(
-  territory?: string,
+  stations?: string[],
   startDate?: string,
   endDate?: string,
   order: 'asc' | 'desc' = 'desc'
@@ -42,9 +42,12 @@ async function fetchAllData(
     const filters: string[] = [];
     const values: Record<string, any> = {};
 
-    if (territory) {
-      filters.push('begins_with(pk, :territory)');
-      values[':territory'] = { S: `${territory}#` };
+    if (stations && stations.length > 0) {
+      const stationFilters = stations.map((_, i) => `sk = :station${i}`);
+      filters.push(`(${stationFilters.join(' OR ')})`);
+      stations.forEach((station, i) => {
+        values[`:station${i}`] = { S: station };
+      });
     }
     if (startDate) {
       filters.push('pk >= :startPk');
@@ -92,7 +95,7 @@ function getNextPage(pageSize: number): { items: any[]; hasMore: boolean } {
 
 async function query(
   pageSize: number = 10,
-  territory?: string,
+  stations?: string[],
   startDate?: string,
   endDate?: string,
   order: 'asc' | 'desc' = 'desc',
@@ -100,7 +103,7 @@ async function query(
 ): Promise<{ hasMore: boolean }> {
   if (allItems.length === 0) {
     console.log('  Fetching all data and sorting...');
-    await fetchAllData(territory, startDate, endDate, order);
+    await fetchAllData(stations, startDate, endDate, order);
     console.log(`  Loaded ${allItems.length} records`);
   }
 
@@ -157,8 +160,8 @@ async function main() {
       describe: 'Filter by end date (YYYY-MM-DD)',
       type: 'string',
     })
-    .option('territory', {
-      describe: 'Filter by territory ID (e.g., c20)',
+    .option('stations', {
+      describe: 'Comma-separated list of station IDs to filter',
       type: 'string',
     })
     .option('order', {
@@ -181,7 +184,8 @@ async function main() {
   console.log('DynamoDB Endpoint:', process.env.DYNAMODB_ENDPOINT || 'AWS (production)');
   console.log('DynamoDB Table:', TABLE_NAME);
   console.log(`Page size: ${argv['page-size']}`);
-  if (argv.territory) console.log(`Territory: ${argv.territory}`);
+  const stations = argv.stations ? argv.stations.split(',').map(s => s.trim()) : undefined;
+  if (stations) console.log(`Stations: ${stations.join(', ')}`);
   if (argv['start-date']) console.log(`Start Date: ${argv['start-date']}`);
   if (argv['end-date']) console.log(`End Date: ${argv['end-date']}`);
   console.log(`Order: ${argv.order}`);
@@ -193,7 +197,7 @@ async function main() {
   while (!shouldQuit) {
     const { hasMore } = await query(
       argv['page-size'],
-      argv.territory,
+      stations,
       argv['start-date'],
       argv['end-date'],
       argv.order,

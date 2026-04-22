@@ -9,6 +9,7 @@ interface Args {
   'end-date'?: string;
   local: boolean;
   sleep: number;
+  stations?: string;
   help: boolean;
 }
 
@@ -165,6 +166,10 @@ const argv = require('yargs')
     type: 'number',
     default: 0,
   })
+  .option('stations', {
+    describe: 'Comma-separated list of station IDs to process (filters territories)',
+    type: 'string',
+  })
   .help()
   .alias('h', 'help')
   .parseSync() as Args;
@@ -177,7 +182,16 @@ console.log('DynamoDB Table:', process.env.DYNAMODB_TABLE_NAME || 'weather-data 
 const territories = loadTerritories();
 console.log('Loaded territories:', territories.map((t) => t.id).join(', '));
 
-populate(argv['start-date'], endDate, territories, argv['sleep'])
+let filteredTerritories = territories;
+if (argv['stations']) {
+  const requestedStations = argv['stations'].split(',').map(s => s.trim());
+  filteredTerritories = territories.filter(t =>
+    t.stationIds.some(sid => requestedStations.includes(sid))
+  );
+  console.log('Filtered territories:', filteredTerritories.map((t) => t.id).join(', '));
+}
+
+populate(argv['start-date'], endDate, filteredTerritories, argv['sleep'])
   .then(() => {
     console.log('Populate completed successfully');
     process.exit(0);
