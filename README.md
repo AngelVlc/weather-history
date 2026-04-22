@@ -187,18 +187,18 @@ Use the populate script to insert historical data into DynamoDB.
 DYNAMODB_ENDPOINT=http://localhost:8000 \
 AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake \
 DYNAMODB_TABLE_NAME=weather-data \
-yarn populate --start-date 2025-04-16
+yarn populate --start-date 2026-04-16
 
 # Date range (local)
 DYNAMODB_ENDPOINT=http://localhost:8000 \
 AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake \
 DYNAMODB_TABLE_NAME=weather-data \
-yarn populate --start-date 2025-04-01 --end-date 2025-04-15
+yarn populate --start-date 2026-04-01 --end-date 2026-04-15
 
 # Production (AWS with profile)
 AWS_PROFILE=xxxx AWS_REGION=us-east-1 \
 DYNAMODB_TABLE_NAME=weather-data \
-yarn populate --start-date 2025-04-01 --end-date 2025-04-15
+yarn populate --start-date 2026-04-01 --end-date 2026-04-15
 ```
 
 ### Options
