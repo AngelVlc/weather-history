@@ -1,4 +1,14 @@
-# CloudFront distribution for frontend (without custom domain)
+variable "cloudfront_alias" {
+  description = "Custom domain alias for frontend (e.g., weather.example.com)"
+  type        = string
+}
+
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN for CloudFront (must be in us-east-1)"
+  type        = string
+}
+
+# CloudFront distribution for frontend with custom domain
 resource "aws_cloudfront_distribution" "frontend" {
   origin {
     domain_name = "${aws_s3_bucket.frontend.id}.s3-website.${var.aws_region}.amazonaws.com"
@@ -15,6 +25,8 @@ resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
+
+  aliases = [var.cloudfront_alias]
 
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
@@ -40,7 +52,9 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn     = var.acm_certificate_arn
+    ssl_support_method     = "sni-only"
+    minimum_protocol_version = "TLSv1_2021"
   }
 
   tags = {

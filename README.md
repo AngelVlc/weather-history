@@ -526,3 +526,7 @@ In AWS Console → IAM → Roles → Create role:
 In CircleCI → Project Settings → Environment Variables:
 
 - Add `OIDC_ROLE_ARN` with the ARN of the role created above (e.g., `arn:aws:iam::123456789:role/CircleCI-WeatherHistory-Deploy`)
+- Add `CUSTOM_DOMAIN` with your custom domain for the frontend (e.g., `weather.example.com`)
+- Add `ACM_CERTIFICATE_ARN` with the ARN of your ACM certificate in us-east-1 (e.g., `arn:aws:acm:us-east-1:123456789:certificate/abc123...`)
+
+**Note**: The ACM certificate must be in `us-east-1` and cover your custom domain (use a wildcard like `*.example.com` for subdomains).
