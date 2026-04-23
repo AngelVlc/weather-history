@@ -505,6 +505,18 @@ In AWS Console → IAM → Roles → Create role:
         {
             "Effect": "Allow",
             "Action": [
+                "scheduler:CreateSchedule",
+                "scheduler:DeleteSchedule",
+                "scheduler:DescribeSchedule",
+                "scheduler:ListSchedules",
+                "scheduler:GetSchedule",
+                "scheduler:UpdateSchedule"
+            ],
+            "Resource": "arn:aws:scheduler:*:*:schedule/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
                 "sqs:CreateQueue",
                 "sqs:DeleteQueue",
                 "sqs:GetQueueUrl",
