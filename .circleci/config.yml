@@ -38,6 +38,12 @@ jobs:
           region: us-east-1
           role_session_name: "circleci-terraform-deploy"
       - run:
+          name: Create S3 placeholders for Lambda zip files
+          command: |
+            echo "placeholder" | aws s3 cp - s3://weather-history-lambda/lambda.zip || true
+            echo "placeholder" | aws s3 cp - s3://weather-history-lambda/lambda-weather-api.zip || true
+            echo "placeholder" | aws s3 cp - s3://weather-history-lambda/lambda-checker.zip || true
+      - run:
           name: Terraform Init
           command: |
             terraform -chdir=terraform version

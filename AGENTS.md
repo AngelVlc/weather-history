@@ -132,6 +132,23 @@ Key point: Use `-target` to limit which resources Terraform manages in each step
 
 **IMPORTANT**: Always include `source_code_hash` in Lambda resources. Without it, Terraform cannot detect code changes and will not redeploy the Lambda even if the zip file in S3 is updated.
 
+### S3 Placeholders for New Lambdas
+
+When adding a new Lambda, Terraform's `data "aws_s3_object"` requires the zip file to exist in S3 before `deploy-terraform-infra` runs.
+
+**To fix this**, add placeholders for all Lambda zip files in the `deploy-terraform-infra` job before Terraform runs:
+
+```yaml
+- run:
+    name: Create S3 placeholders for Lambda zip files
+    command: |
+      echo "placeholder" | aws s3 cp - s3://weather-history-lambda/lambda.zip || true
+      echo "placeholder" | aws s3 cp - s3://weather-history-lambda/lambda-weather-api.zip || true
+      echo "placeholder" | aws s3 cp - s3://weather-history-lambda/lambda-checker.zip || true
+```
+
+**Important**: Always include ALL Lambda zip files (existing and new), not just the new one. This ensures the deploy works even if the infrastructure is recreated from scratch.
+
 Example:
 ```yaml
 # Step 1: Create everything except Lambdas and their triggers
