@@ -19,20 +19,28 @@ resource "aws_iam_role_policy" "scheduler_policy" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Action = [
-        "lambda:InvokeFunction",
-        "lambda:InvokeFunctionAsync"
-      ]
-      Effect = "Allow"
-      Resource = aws_lambda_function.weather_extractor.arn
-    }]
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:InvokeFunction",
+          "lambda:InvokeFunctionAsync"
+        ]
+        Resource = aws_lambda_function.weather_extractor.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "scheduler:CreateSchedule",
+          "scheduler:DeleteSchedule",
+          "scheduler:DescribeSchedule",
+          "scheduler:GetSchedule",
+          "scheduler:UpdateSchedule"
+        ]
+        Resource = "*"
+      }
+    ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "scheduler_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSEventSchedulerExecutionPolicy"
-  role       = aws_iam_role.scheduler_role.id
 }
 
 resource "aws_scheduler_schedule" "each_territory" {
