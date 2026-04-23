@@ -158,6 +158,8 @@ jobs:
               -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
+              -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
+              -var="acm_certificate_arn=${ACM_CERTIFICATE_ARN}" \
               -auto-approve
 
   deploy-lambda-api:
@@ -187,6 +189,9 @@ jobs:
               -target=aws_iam_role_policy_attachment.lambda_api_policy_attachment \
               -target=aws_cloudwatch_log_group.lambda_api_logs \
               -var-file=terraform.tfvars \
+              -var="notification_email=${NOTIFICATION_EMAIL}" \
+              -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
+              -var="acm_certificate_arn=${ACM_CERTIFICATE_ARN}" \
               -auto-approve
       - run:
           name: Get Lambda API URL
