@@ -25,7 +25,10 @@ resource "aws_iam_role_policy" "scheduler_policy" {
         "lambda:InvokeFunction",
         "lambda:InvokeFunctionAsync"
       ]
-      Resource = aws_lambda_function.weather_extractor.arn
+      Resource = [
+        aws_lambda_function.weather_extractor.arn,
+        aws_lambda_function.weather_checker.arn
+      ]
     }]
   })
 }
@@ -46,6 +49,29 @@ resource "aws_scheduler_schedule" "each_territory" {
       territoryName = each.value.name
       location     = each.value.location
       stationIds   = each.value.stationIds
+    })
+    retry_policy {
+      maximum_event_age_in_seconds = 5400
+      maximum_retry_attempts       = 3
+    }
+  }
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+}
+
+resource "aws_scheduler_schedule" "data_checker" {
+  name                = "weather-history-checker"
+  description         = "Check weather data completeness for all stations"
+  schedule_expression = "cron(0 9 * * ? *)"
+  schedule_expression_timezone = "Europe/Madrid"
+
+  target {
+    arn      = aws_lambda_function.weather_checker.arn
+    role_arn = aws_iam_role.scheduler_role.arn
+    input   = jsonencode({
+      stationIds = flatten(local.territories[*].stationIds)
     })
     retry_policy {
       maximum_event_age_in_seconds = 5400

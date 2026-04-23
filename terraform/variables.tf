@@ -27,3 +27,9 @@ variable "notification_email" {
   type        = string
   default     = ""
 }
+
+variable "lambda_checker_function_name" {
+  description = "Name of the Lambda checker function"
+  type        = string
+  default     = "weather-checker"
+}

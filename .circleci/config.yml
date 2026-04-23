@@ -24,9 +24,12 @@ jobs:
           command: |
             yarn workspace @weather-history/lambda-weather-extractor test
             yarn workspace @weather-history/lambda-weather-api test
+            yarn workspace @weather-history/lambda-weather-checker test
       - run:
           name: Build
-          command: yarn workspace @weather-history/lambda-weather-extractor build
+          command: |
+            yarn workspace @weather-history/lambda-weather-extractor build
+            yarn workspace @weather-history/lambda-weather-checker build
 
   deploy-terraform-infra:
     docker:
@@ -60,10 +63,15 @@ jobs:
               -target=aws_iam_policy.lambda_policy \
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
               -target=aws_scheduler_schedule.each_territory \
+              -target=aws_scheduler_schedule.data_checker \
               -target=aws_iam_role.scheduler_role \
               -target=aws_iam_role_policy.scheduler_policy \
               -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
               -target=aws_cloudwatch_log_group.lambda_logs \
+              -target=aws_iam_role.lambda_checker_role \
+              -target=aws_iam_policy.lambda_checker_policy \
+              -target=aws_iam_role_policy_attachment.lambda_checker_policy_attachment \
+              -target=aws_cloudwatch_log_group.lambda_checker_logs \
               -target=aws_cloudfront_distribution.frontend \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
@@ -123,6 +131,9 @@ jobs:
             cd ../lambda-weather-api
             yarn build
             zip -r dist.zip dist/
+            cd ../lambda-weather-checker
+            yarn build
+            zip -r dist.zip dist/
       - aws-cli/setup:
           role_arn: ${OIDC_ROLE_ARN}
           region: us-east-1
@@ -132,6 +143,7 @@ jobs:
           command: |
             aws s3 cp packages/lambda-weather-extractor/dist.zip s3://weather-history-lambda/lambda.zip
             aws s3 cp packages/lambda-weather-api/dist.zip s3://weather-history-lambda/lambda-weather-api.zip
+            aws s3 cp packages/lambda-weather-checker/dist.zip s3://weather-history-lambda/lambda-checker.zip
 
   deploy-lambda-extractor:
     docker:
@@ -156,6 +168,35 @@ jobs:
               -target=aws_iam_role.scheduler_role \
               -target=aws_iam_role_policy.scheduler_policy \
               -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
+              -var-file=terraform.tfvars \
+              -var="notification_email=${NOTIFICATION_EMAIL}" \
+              -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
+              -var="acm_certificate_arn=${ACM_CERTIFICATE_ARN}" \
+              -auto-approve
+
+  deploy-lambda-checker:
+    docker:
+      - image: cimg/node:25.9
+    steps:
+      - checkout
+      - terraform/install:
+          terraform_version: 1.14.8
+      - aws-cli/setup:
+          role_arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role_session_name: "circleci-terraform-deploy"
+      - run:
+          name: Terraform Init
+          command: terraform -chdir=terraform init -reconfigure
+      - run:
+          name: Terraform Apply Lambda Checker
+          command: |
+            terraform -chdir=terraform apply \
+              -target=aws_lambda_function.weather_checker \
+              -target=aws_scheduler_schedule.data_checker \
+              -target=aws_iam_role.lambda_checker_role \
+              -target=aws_iam_policy.lambda_checker_policy \
+              -target=aws_iam_role_policy_attachment.lambda_checker_policy_attachment \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
@@ -275,6 +316,12 @@ workflows:
             branches:
               only: main
       - deploy-lambda-extractor:
+          requires:
+            - upload-lambdas
+          filters:
+            branches:
+              only: main
+      - deploy-lambda-checker:
           requires:
             - upload-lambdas
           filters:
