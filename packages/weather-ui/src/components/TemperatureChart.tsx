@@ -69,8 +69,6 @@ export function TemperatureChart({ data }: TemperatureChartProps) {
     },
     scales: {
       y: {
-        min: -10,
-        max: 50,
         title: {
           display: true,
           text: 'Temperatura (°C)',
