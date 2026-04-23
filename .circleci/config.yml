@@ -38,14 +38,6 @@ jobs:
           region: us-east-1
           role_session_name: "circleci-terraform-deploy"
       - run:
-          name: Upload placeholder if Lambda zip doesn't exist
-          command: |
-            for key in lambda.zip lambda-weather-api.zip lambda-checker.zip; do
-              if ! aws s3 ls s3://weather-history-lambda/$key --quiet 2>/dev/null; then
-                printf 'PK\x05\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' | aws s3 cp - s3://weather-history-lambda/$key
-              fi
-            done
-      - run:
           name: Terraform Init
           command: |
             terraform -chdir=terraform version
@@ -62,14 +54,9 @@ jobs:
               -target=aws_s3_bucket_policy.frontend \
               -target=aws_s3_bucket_website_configuration.frontend \
               -target=aws_dynamodb_table.weather_data \
-              -target=aws_iam_role.lambda_role \
-              -target=aws_iam_policy.lambda_policy \
-              -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
-              -target=aws_scheduler_schedule.each_territory \
               -target=aws_iam_role.scheduler_role \
               -target=aws_iam_role_policy.scheduler_policy \
               -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
-              -target=aws_cloudwatch_log_group.lambda_logs \
               -target=aws_cloudfront_distribution.frontend \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
@@ -138,6 +125,10 @@ jobs:
           name: Terraform Apply Lambda
           command: |
             terraform -chdir=terraform apply \
+              -target=aws_iam_role.lambda_role \
+              -target=aws_iam_policy.lambda_policy \
+              -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
+              -target=aws_cloudwatch_log_group.lambda_logs \
               -target=aws_lambda_function.weather_extractor \
               -target=aws_scheduler_schedule.each_territory \
               -target=aws_iam_role.scheduler_role \
