@@ -23,7 +23,7 @@ export const handler = async (event: CheckerEvent): Promise<void> => {
   const missingStations: string[] = [];
 
   for (const stationId of stationIds) {
-    const pk = `${stationId}#${date}`;
+    const pk = `${stationId.substring(0, 3)}#${date}`;
     const exists = await checkRecordExists(pk, stationId);
 
     if (exists) {
