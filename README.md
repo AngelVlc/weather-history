@@ -14,6 +14,7 @@ Daily weather data extraction and storage for historical analysis.
   - [DynamoDB Local](#dynamodb-local)
   - [Create Table](#create-table)
   - [Lambda Extractor](#lambda-extractor)
+  - [Lambda Checker](#lambda-checker)
   - [Lambda Weather API](#lambda-weather-api)
   - [Weather UI](#weather-ui)
 - [Populate Database](#populate-database)
@@ -81,9 +82,12 @@ weather-history/
 │   │   ├── src/
 │   │   ├── tests/
 │   │   └── template.yaml
+│   ├── lambda-weather-checker/       # Checker Lambda (data completeness + notifications)
+│   │   ├── src/
+│   │   └── tests/
 │   └── weather-ui/                   # Frontend (React + Vite)
 │       ├── src/
-│       │   ├── pages/
+��       │   ├── pages/
 │       │   ├── components/
 │       │   └── api/
 │       └── public/
@@ -152,11 +156,32 @@ yarn dev:setup
 ### Lambda Extractor
 
 ```bash
-cd packages/lambda-weather-extractor && \
-  DYNAMODB_ENDPOINT=http://host.docker.internal:8000 \
-  DYNAMODB_TABLE_NAME=weather-data \
-  AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
-  yarn invoke
+cd packages/lambda-weather-extractor
+DYNAMODB_ENDPOINT=http://host.docker.internal:8000 \
+DYNAMODB_TABLE_NAME=weather-data \
+AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+yarn invoke
+```
+
+SAM CLI automatically passes the event defined in `events/lambda-input.json`.
+
+### Lambda Checker
+
+```bash
+cd packages/lambda-weather-checker
+DYNAMODB_ENDPOINT=http://host.docker.internal:8000 \
+DYNAMODB_TABLE_NAME=weather-data \
+NOTIFICATION_EMAIL=test@example.com \
+AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+yarn invoke
+```
+
+SAM CLI automatically passes the event defined in `events/checker.json`. The event contains:
+
+```json
+{
+  "stationIds": ["c20m236e01", "c20m236e02", "c15m250e34", "c21m235e02"]
+}
 ```
 
 ### Lambda Weather API
@@ -396,6 +421,28 @@ Both endpoints include `Cache-Control` headers:
 4. After all retries fail, the event is lost (no DLQ configured)
 5. Check CloudWatch Logs `/aws/lambda/weather-extractor` for error details
 
+## Notifications
+
+The weather-checker Lambda monitors data completeness and sends email notifications when stations are missing data.
+
+### How it works
+
+1. EventBridge triggers the checker at 9:00 AM (Europe/Madrid timezone)
+2. The checker queries DynamoDB for all stations defined in `config/territories.yaml` for the previous day
+3. If all stations have data → no action taken
+4. If any station is missing → sends email notification with list of missing stations
+
+### Email Configuration
+
+The notification email address is configured via CircleCI environment variable:
+- `NOTIFICATION_EMAIL` - Destination email address for missing data alerts
+
+### IAM Permissions
+
+The checker Lambda requires:
+- `dynamodb:GetItem` - To query station records
+- `ses:SendEmail` - To send notifications (uses SES default identity)
+
 ## CircleCI OIDC Setup
 
 CircleCI uses OIDC to authenticate with AWS instead of static credentials.
@@ -453,7 +500,8 @@ In AWS Console → IAM → Roles → Create role:
             ],
             "Resource": [
                 "arn:aws:lambda:*:*:function:weather-extractor",
-                "arn:aws:lambda:*:*:function:weather-api"
+                "arn:aws:lambda:*:*:function:weather-api",
+                "arn:aws:lambda:*:*:function:weather-checker"
             ]
         },
         {
@@ -528,6 +576,13 @@ In AWS Console → IAM → Roles → Create role:
                 "sqs:PurgeQueue"
             ],
             "Resource": "arn:aws:sqs:*:*:weather-extractor-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ses:SendEmail"
+            ],
+            "Resource": "*"
         }
     ]
 }

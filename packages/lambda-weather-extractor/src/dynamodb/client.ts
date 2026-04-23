@@ -1,11 +1,16 @@
-import { PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { createClient } from '@weather-history/shared-dynamodb-client';
 import { WeatherRecord } from '@weather-history/shared-types';
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'weather-data';
 
+let client: DynamoDBClient | null = null;
+
 export async function saveWeatherRecord(record: WeatherRecord): Promise<void> {
-  const client = createClient();
+  if (!client) {
+    client = createClient();
+  }
+
   const command = new PutItemCommand({
     TableName: TABLE_NAME,
     Item: {
