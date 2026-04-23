@@ -19,27 +19,14 @@ resource "aws_iam_role_policy" "scheduler_policy" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "lambda:InvokeFunction",
-          "lambda:InvokeFunctionAsync"
-        ]
-        Resource = aws_lambda_function.weather_extractor.arn
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "scheduler:CreateSchedule",
-          "scheduler:DeleteSchedule",
-          "scheduler:DescribeSchedule",
-          "scheduler:GetSchedule",
-          "scheduler:UpdateSchedule"
-        ]
-        Resource = "*"
-      }
-    ]
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "lambda:InvokeFunction",
+        "lambda:InvokeFunctionAsync"
+      ]
+      Resource = aws_lambda_function.weather_extractor.arn
+    }]
   })
 }
 
