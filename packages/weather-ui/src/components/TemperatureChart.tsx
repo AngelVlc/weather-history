@@ -41,15 +41,15 @@ export function TemperatureChart({ data }: TemperatureChartProps) {
       {
         label: 'Temp. Media',
         data: reversedData.map(d => d.tempAvg),
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        borderColor: 'rgb(234, 179, 8)',
+        backgroundColor: 'rgba(234, 179, 8, 0.5)',
         tension: 0.3,
       },
       {
         label: 'Temp. Mín.',
         data: reversedData.map(d => d.tempMin),
-        borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.5)',
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
         tension: 0.3,
       },
     ],
@@ -65,6 +65,16 @@ export function TemperatureChart({ data }: TemperatureChartProps) {
       title: {
         display: true,
         text: 'Temperatura (°C)',
+      },
+    },
+    scales: {
+      y: {
+        min: -10,
+        max: 50,
+        title: {
+          display: true,
+          text: 'Temperatura (°C)',
+        },
       },
     },
   };
