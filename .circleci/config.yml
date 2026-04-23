@@ -25,11 +25,6 @@ jobs:
             yarn workspace @weather-history/lambda-weather-extractor test
             yarn workspace @weather-history/lambda-weather-api test
             yarn workspace @weather-history/lambda-weather-checker test
-      - run:
-          name: Build
-          command: |
-            yarn workspace @weather-history/lambda-weather-extractor build
-            yarn workspace @weather-history/lambda-weather-checker build
 
   deploy-terraform-infra:
     docker:
