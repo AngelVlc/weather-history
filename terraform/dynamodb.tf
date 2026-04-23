@@ -24,8 +24,6 @@ resource "aws_dynamodb_table" "weather_data" {
     hash_key        = "date"
     range_key       = "pk"
     projection_type = "ALL"
-    read_capacity   = 1
-    write_capacity  = 1
   }
 
   tags = {
