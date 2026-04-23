@@ -59,7 +59,10 @@ jobs:
               -target=aws_iam_role.lambda_role \
               -target=aws_iam_policy.lambda_policy \
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
-              -target=aws_cloudwatch_event_rule.each_territory \
+              -target=aws_scheduler_schedule.each_territory \
+              -target=aws_iam_role.scheduler_role \
+              -target=aws_iam_role_policy.scheduler_policy \
+              -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
               -target=aws_cloudwatch_log_group.lambda_logs \
               -target=aws_cloudfront_distribution.frontend \
               -var-file=terraform.tfvars \
@@ -86,7 +89,10 @@ jobs:
               -target=aws_iam_role.lambda_role \
               -target=aws_iam_policy.lambda_policy \
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
-              -target=aws_cloudwatch_event_rule.each_territory \
+              -target=aws_scheduler_schedule.each_territory \
+              -target=aws_iam_role.scheduler_role \
+              -target=aws_iam_role_policy.scheduler_policy \
+              -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
               -target=aws_cloudwatch_log_group.lambda_logs \
               -target=aws_cloudfront_distribution.frontend \
               -var-file=terraform.tfvars \
@@ -146,8 +152,10 @@ jobs:
           command: |
             terraform -chdir=terraform apply \
               -target=aws_lambda_function.weather_extractor \
-              -target=aws_cloudwatch_event_target.lambda_target \
-              -target=aws_lambda_permission.allow_eventbridge \
+              -target=aws_scheduler_schedule.each_territory \
+              -target=aws_iam_role.scheduler_role \
+              -target=aws_iam_role_policy.scheduler_policy \
+              -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -auto-approve

@@ -54,7 +54,7 @@ Daily weather data extraction and storage for historical analysis.
 - TypeScript
 - AWS Lambda
 - AWS DynamoDB
-- AWS EventBridge
+- AWS EventBridge Scheduler
 - AWS CloudFront
 - Terraform
 - CircleCI
@@ -305,7 +305,7 @@ The deployment is automated via CircleCI on push to `main`:
 
 1. **test** - Runs unit tests
 2. **upload-lambdas** - Builds and uploads Lambda code to S3
-3. **deploy-terraform-infra** - Creates infrastructure (S3, DynamoDB, IAM, EventBridge)
+3. **deploy-terraform-infra** - Creates infrastructure (S3, DynamoDB, IAM, EventBridge Scheduler)
 4. **deploy-lambda-extractor** - Creates Lambda function and trigger
 5. **build-frontend** - Builds React frontend
 6. **deploy-frontend** - Deploys frontend to S3 and invalidates CloudFront

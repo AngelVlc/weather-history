@@ -18,13 +18,13 @@ output "dynamodb_table_arn" {
   value       = aws_dynamodb_table.weather_data.arn
 }
 
-output "eventbridge_rules" {
-  description = "EventBridge rules created for each territory"
+output "scheduler_schedules" {
+  description = "EventBridge Scheduler schedules created for each territory"
   value = {
-    for rule in aws_cloudwatch_event_rule.each_territory :
-    rule.name => {
-      schedule = rule.schedule_expression
-      target   = aws_cloudwatch_event_target.lambda_target[split("-", rule.name)[2]].target_id
+    for schedule in aws_scheduler_schedule.each_territory :
+    schedule.name => {
+      schedule = schedule.schedule_expression
+      timezone = schedule.schedule_expression_timezone
     }
   }
 }

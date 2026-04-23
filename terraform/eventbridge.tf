@@ -1,39 +1,60 @@
-resource "aws_cloudwatch_event_rule" "each_territory" {
+resource "aws_iam_role" "scheduler_role" {
+  name = "${var.lambda_function_name}-scheduler-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "scheduler.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "scheduler_policy" {
+  name = "${var.lambda_function_name}-scheduler-policy"
+  role = aws_iam_role.scheduler_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = [
+        "lambda:InvokeFunction",
+        "lambda:InvokeFunctionAsync"
+      ]
+      Effect = "Allow"
+      Resource = aws_lambda_function.weather_extractor.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "scheduler_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSEventSchedulerExecutionPolicy"
+  role       = aws_iam_role.scheduler_role.id
+}
+
+resource "aws_scheduler_schedule" "each_territory" {
   for_each = { for t in local.territories : t.id => t }
 
   name                = "weather-history-${each.value.id}"
   description         = "Trigger Lambda for territory ${each.value.name}"
   schedule_expression = "cron(0 ${each.value.cronHour} * * ? *)"
+  schedule_expression_timezone = "Europe/Madrid"
 
-  event_pattern = jsonencode({
-    "source" : ["aws.events"]
-  })
-}
-
-resource "aws_cloudwatch_event_target" "lambda_target" {
-  for_each = { for t in local.territories : t.id => t }
-
-  rule      = aws_cloudwatch_event_rule.each_territory[each.value.id].name
-  target_id = "WeatherExtractor"
-  arn       = aws_lambda_function.weather_extractor.arn
-  input = jsonencode({
-    territory     = each.value.id
-    territoryName = each.value.name
-    location      = each.value.location
-    stationIds    = each.value.stationIds
-  })
-  retry_policy {
-    maximum_event_age_in_seconds = 1800
-    maximum_retry_attempts       = 3
+  target {
+    arn      = aws_lambda_function.weather_extractor.arn
+    role_arn = aws_iam_role.scheduler_role.arn
+    input   = jsonencode({
+      territory     = each.value.id
+      territoryName = each.value.name
+      location     = each.value.location
+      stationIds   = each.value.stationIds
+    })
   }
-}
 
-resource "aws_lambda_permission" "allow_eventbridge" {
-  for_each = { for t in local.territories : t.id => t }
-
-  statement_id  = "AllowExecutionFromEventBridge-${each.value.id}"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.weather_extractor.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.each_territory[each.value.id].arn
+  flexible_time_window {
+    mode = "OFF"
+  }
 }

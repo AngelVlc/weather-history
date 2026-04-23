@@ -8,12 +8,12 @@
 - Name: weather-history
 - Purpose: Daily weather data extraction (precipitation + temperatures) from public web to AWS database, with web UI for visualization
 - Data stored: precipitation (mm), min temp, max temp, avg temp
-- Stack: TypeScript, AWS Lambda, DynamoDB, EventBridge, CloudFront, Terraform, CircleCI, React + Vite, Tailwind CSS, Chart.js
+- Stack: TypeScript, AWS Lambda, DynamoDB, EventBridge Scheduler, CloudFront, Terraform, CircleCI, React + Vite, Tailwind CSS, Chart.js
 - Tests: Unit tests for Lambda functions
 
 ## Architecture
 - Source: AVAMET (https://www.avamet.org)
-- Lambda triggered by EventBridge (one rule per territory)
+- Lambda triggered by EventBridge Scheduler (one schedule per territory)
 - EventBridge passes: `{ territory, territoryName, location, stationIds }`
 - Lambda calculates: `date = yesterday` (local time)
 - Storage: AWS DynamoDB
@@ -51,9 +51,8 @@ Example directory structure for the monorepo:
 weather-history/
 ├── packages/
 │   ├── lambda-weather-extractor/    # Main Lambda function (data extraction)
-│   ├── dlq-processor/               # DLQ notification Lambda
-│   ├── lambda-weather-api/                 # API Lambda for frontend
-│   └── weather-ui/                  # Frontend (React + Vite)
+│   ├── lambda-weather-api/          # API Lambda for frontend
+│   └── weather-ui/                # Frontend (React + Vite)
 ├── terraform/
 ├── config/
 │   └── territories.yaml
@@ -125,10 +124,9 @@ Examples:
 
 When resources have circular dependencies (e.g., Lambda needs code in S3, but S3 bucket is managed by Terraform), split the deployment into multiple steps:
 
-1. **deploy-terraform-infra**: Creates infrastructure (S3 buckets, IAM roles, DynamoDB, EventBridge rules) excluding Lambdas
+1. **deploy-terraform-infra**: Creates infrastructure (S3 buckets, IAM roles, DynamoDB, EventBridge Scheduler schedules) excluding Lambdas
 2. **upload-lambdas**: Builds and uploads Lambda code to S3
-3. **deploy-lambda-extractor**: Creates main Lambda function and its dependencies (EventBridge targets, permissions)
-4. **deploy-lambda-dlq-processor**: Creates DLQ processor Lambda and its SQS trigger
+3. **deploy-lambda-extractor**: Creates main Lambda function and its dependencies (Scheduler schedules, permissions)
 
 Key point: Use `-target` to limit which resources Terraform manages in each step. When using `-target`, Terraform still creates dependent resources if they don't exist.
 
