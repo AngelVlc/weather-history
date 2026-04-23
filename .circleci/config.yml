@@ -58,15 +58,10 @@ jobs:
               -target=aws_iam_policy.lambda_policy \
               -target=aws_iam_role_policy_attachment.lambda_policy_attachment \
               -target=aws_scheduler_schedule.each_territory \
-              -target=aws_scheduler_schedule.data_checker \
               -target=aws_iam_role.scheduler_role \
               -target=aws_iam_role_policy.scheduler_policy \
               -target=aws_iam_role_policy_attachment.scheduler_policy_attachment \
               -target=aws_cloudwatch_log_group.lambda_logs \
-              -target=aws_iam_role.lambda_checker_role \
-              -target=aws_iam_policy.lambda_checker_policy \
-              -target=aws_iam_role_policy_attachment.lambda_checker_policy_attachment \
-              -target=aws_cloudwatch_log_group.lambda_checker_logs \
               -target=aws_cloudfront_distribution.frontend \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
@@ -187,11 +182,12 @@ jobs:
           name: Terraform Apply Lambda Checker
           command: |
             terraform -chdir=terraform apply \
-              -target=aws_lambda_function.weather_checker \
-              -target=aws_scheduler_schedule.data_checker \
               -target=aws_iam_role.lambda_checker_role \
               -target=aws_iam_policy.lambda_checker_policy \
               -target=aws_iam_role_policy_attachment.lambda_checker_policy_attachment \
+              -target=aws_cloudwatch_log_group.lambda_checker_logs \
+              -target=aws_lambda_function.weather_checker \
+              -target=aws_scheduler_schedule.data_checker \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
