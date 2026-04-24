@@ -300,10 +300,6 @@ workflows:
           filters:
             branches:
               only: main
-      - build-frontend:
-          requires:
-            - test
-            - deploy-lambda-api
       - deploy-terraform-infra:
           requires:
             - test
