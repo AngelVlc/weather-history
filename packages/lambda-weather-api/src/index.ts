@@ -18,7 +18,6 @@ export const handler = async (event: LambdaEvent | ApiGatewayEvent): Promise<Lam
   const path = (event as any).rawPath || (event as any).path || '/';
   const method = (event as any).httpMethod || (event as any).requestContext?.http?.method || 'GET';
   const queryStringParameters = (event as any).queryStringParameters || {};
-  const pathParameters = (event as any).pathParameters || {};
 
   let response: LambdaResponse;
 
