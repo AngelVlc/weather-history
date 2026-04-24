@@ -203,9 +203,9 @@ jobs:
               -var="acm_certificate_arn=${ACM_CERTIFICATE_ARN}" \
               -auto-approve
       - run:
-          name: Get Lambda API URL
+          name: Get API URL
           command: |
-            terraform -chdir=terraform output -raw lambda_api_url > /tmp/lambda_api_url.txt
+            terraform -chdir=terraform output -raw api_cloudfront_url > /tmp/lambda_api_url.txt
       - persist_to_workspace:
           root: /tmp
           paths:
