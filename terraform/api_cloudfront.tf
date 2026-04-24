@@ -1,9 +1,13 @@
 # CloudFront distribution for API with query string caching
-resource "aws_cloudfront_distribution" "api" {
-  depends_on = [aws_lambda_function_url.lambda_api]
+# Consultar la Lambda URL existente para obtener su dominio
+data "aws_lambda_function_url" "lambda_api" {
+  function_name = var.lambda_api_function_name
+}
 
+resource "aws_cloudfront_distribution" "api" {
   origin {
-    domain_name = replace(aws_lambda_function_url.lambda_api.function_url, "https://", "")
+    # Extraer dominio del Lambda Function URL (sin https://)
+    domain_name = replace(data.aws_lambda_function_url.lambda_api.function_url, "https://", "")
     origin_id   = "lambda-api-origin"
 
     custom_origin_config {
