@@ -196,6 +196,7 @@ jobs:
               -target=aws_iam_policy.lambda_api_policy \
               -target=aws_iam_role_policy_attachment.lambda_api_policy_attachment \
               -target=aws_cloudwatch_log_group.lambda_api_logs \
+              -target=aws_cloudfront_distribution.api \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
