@@ -522,6 +522,10 @@ In AWS Console → IAM → Roles → Create role:
         {
             "Effect": "Allow",
             "Action": [
+                "cloudfront:CreateCachePolicy",
+                "cloudfront:DeleteCachePolicy",
+                "cloudfront:GetCachePolicy",
+                "cloudfront:ListCachePolicies",
                 "cloudfront:CreateDistribution",
                 "cloudfront:CreateDistributionWithTags",
                 "cloudfront:CreateInvalidation",
