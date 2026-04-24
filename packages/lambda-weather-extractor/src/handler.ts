@@ -1,4 +1,5 @@
-import { EventBridgeEvent, WeatherRecord } from './types';
+import { WeatherRecord, getYesterdayDate } from '@weather-history/shared-types';
+import { EventBridgeEvent } from './types';
 import { fetchWeatherPage } from './httpClient';
 import { parseWeatherTable } from './parser/htmlParser';
 import { saveWeatherRecords } from './dynamodb/client';
@@ -48,12 +49,6 @@ export const handler = async (event: EventBridgeEvent): Promise<void> => {
     console.log('No records to save');
   }
 };
-
-export function getYesterdayDate(): string {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
-}
 
 export function getDateFromString(dateStr: string): string {
   return dateStr.split('T')[0];
