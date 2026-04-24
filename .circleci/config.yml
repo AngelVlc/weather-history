@@ -196,20 +196,53 @@ jobs:
               -target=aws_iam_policy.lambda_api_policy \
               -target=aws_iam_role_policy_attachment.lambda_api_policy_attachment \
               -target=aws_cloudwatch_log_group.lambda_api_logs \
-              -target=aws_cloudfront_distribution.api \
               -var-file=terraform.tfvars \
               -var="notification_email=${NOTIFICATION_EMAIL}" \
               -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
               -var="acm_certificate_arn=${ACM_CERTIFICATE_ARN}" \
               -auto-approve
       - run:
-          name: Get API URL
+          name: Get Lambda API URL
           command: |
-            terraform -chdir=terraform output -raw api_cloudfront_url > /tmp/lambda_api_url.txt
+            terraform -chdir=terraform output -raw lambda_api_url > /tmp/lambda_api_url.txt
       - persist_to_workspace:
           root: /tmp
           paths:
             - lambda_api_url.txt
+
+  deploy-cloudfront-api:
+    docker:
+      - image: cimg/node:25.9
+    steps:
+      - checkout
+      - terraform/install:
+          terraform_version: 1.14.8
+      - aws-cli/setup:
+          role_arn: ${OIDC_ROLE_ARN}
+          region: us-east-1
+          role_session_name: "circleci-terraform-deploy"
+      - run:
+          name: Terraform Init
+          command: terraform -chdir=terraform init -reconfigure
+      - run:
+          name: Terraform Apply API CloudFront
+          command: |
+            terraform -chdir=terraform apply \
+              -target=aws_cloudfront_distribution.api \
+              -target=aws_lambda_function_url.lambda_api \
+              -var-file=terraform.tfvars \
+              -var="notification_email=${NOTIFICATION_EMAIL}" \
+              -var="cloudfront_alias=${CUSTOM_DOMAIN}" \
+              -var="acm_certificate_arn=${ACM_CERTIFICATE_ARN}" \
+              -auto-approve
+      - run:
+          name: Get CloudFront API URL
+          command: |
+            terraform -chdir=terraform output -raw api_cloudfront_url > /tmp/cloudfront_api_url.txt
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - cloudfront_api_url.txt
 
   build-frontend:
     docker:
@@ -224,8 +257,8 @@ jobs:
       - run:
           name: Build frontend
           command: |
-            echo "VITE_API_URL=$(cat /tmp/workspace/lambda_api_url.txt)"
-            cd /home/circleci/project/packages/weather-ui && VITE_API_URL=$(cat /tmp/workspace/lambda_api_url.txt) yarn build
+            echo "VITE_API_URL=$(cat /tmp/workspace/cloudfront_api_url.txt)"
+            cd /home/circleci/project/packages/weather-ui && VITE_API_URL=$(cat /tmp/workspace/cloudfront_api_url.txt) yarn build
       - run:
           name: Create archive
           command: |
@@ -301,6 +334,16 @@ workflows:
           filters:
             branches:
               only: main
+      - deploy-cloudfront-api:
+          requires:
+            - deploy-lambda-api
+          filters:
+            branches:
+              only: main
+      - build-frontend:
+          requires:
+            - test
+            - deploy-cloudfront-api
       - deploy-frontend:
           requires:
             - build-frontend
