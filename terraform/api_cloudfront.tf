@@ -6,8 +6,8 @@ data "aws_lambda_function_url" "lambda_api" {
 
 resource "aws_cloudfront_distribution" "api" {
   origin {
-    # Extraer dominio del Lambda Function URL (sin https://)
-    domain_name = replace(data.aws_lambda_function_url.lambda_api.function_url, "https://", "")
+    # Extraer dominio del Lambda Function URL (sin https:// y sin trailing /)
+    domain_name = trimsuffix(replace(data.aws_lambda_function_url.lambda_api.function_url, "https://", ""), "/")
     origin_id   = "lambda-api-origin"
 
     custom_origin_config {
