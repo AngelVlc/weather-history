@@ -57,7 +57,32 @@ describe('Weather API Handler', () => {
   });
 
   describe('GET /stations/:stationId', () => {
-    it('should return station data for given days', async () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return station data with until parameter', async () => {
+      mockQueryStationData.mockResolvedValue([
+        { pk: 'c20#2026-04-16', sk: 'c20m236e01', territory: 'c20', territoryName: 'Ribera Alta', location: 'test', date: '2026-04-16', stationId: 'c20m236e01', stationName: 'Sumacàrcer', tempMax: 27.2, tempMin: 12.2, tempAvg: 19.4, precipitation: 0 },
+      ]);
+
+      const response = await handler({
+        rawPath: '/stations/c20m236e01',
+        queryStringParameters: { days: '7', until: '2026-04-23' },
+        requestContext: mockRequestContext,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['Cache-Control']).toBe('public, max-age=31536000, immutable');
+      
+      const body = JSON.parse(response.body);
+      expect(body.stationId).toBe('c20m236e01');
+      expect(body.days).toBe(7);
+      expect(body.until).toBe('2026-04-23');
+      expect(body.data).toHaveLength(1);
+    });
+
+    it('should redirect to until parameter when not provided', async () => {
       mockQueryStationData.mockResolvedValue([
         { pk: 'c20#2026-04-16', sk: 'c20m236e01', territory: 'c20', territoryName: 'Ribera Alta', location: 'test', date: '2026-04-16', stationId: 'c20m236e01', stationName: 'Sumacàrcer', tempMax: 27.2, tempMin: 12.2, tempAvg: 19.4, precipitation: 0 },
       ]);
@@ -68,12 +93,8 @@ describe('Weather API Handler', () => {
         requestContext: mockRequestContext,
       });
 
-      expect(response.statusCode).toBe(200);
-      expect(response.headers['Cache-Control']).toBe('public, max-age=7200');
-      
-      const body = JSON.parse(response.body);
-      expect(body.stationId).toBe('c20m236e01');
-      expect(body.data).toHaveLength(1);
+      expect(response.statusCode).toBe(307);
+      expect(response.headers['Location']).toContain('until=');
     });
 
     it('should return 404 when station not found', async () => {
@@ -81,23 +102,11 @@ describe('Weather API Handler', () => {
 
       const response = await handler({
         rawPath: '/stations/c20m236e01',
-        queryStringParameters: { days: '7' },
+        queryStringParameters: { days: '7', until: '2026-04-23' },
         requestContext: mockRequestContext,
       });
 
       expect(response.statusCode).toBe(404);
-    });
-
-    it('should default to 7 days when days not specified', async () => {
-      mockQueryStationData.mockResolvedValue([]);
-
-      await handler({
-        rawPath: '/stations/c20m236e01',
-        queryStringParameters: null,
-        requestContext: mockRequestContext,
-      });
-
-      expect(mockQueryStationData).toHaveBeenCalledWith('c20m236e01', 7);
     });
   });
 

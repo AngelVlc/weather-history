@@ -1,4 +1,5 @@
 import { LambdaEvent, LambdaResponse, Station, StationData, StationResponse, StationsResponse } from './types';
+import { getYesterdayDate } from '@weather-history/shared-types';
 import { scanAllStations, queryStationData } from './dynamodb/client';
 
 interface ApiGatewayEvent {
@@ -17,7 +18,6 @@ export const handler = async (event: LambdaEvent | ApiGatewayEvent): Promise<Lam
   const path = (event as any).rawPath || (event as any).path || '/';
   const method = (event as any).httpMethod || (event as any).requestContext?.http?.method || 'GET';
   const queryStringParameters = (event as any).queryStringParameters || {};
-  const pathParameters = (event as any).pathParameters || {};
 
   let response: LambdaResponse;
 
@@ -28,7 +28,8 @@ export const handler = async (event: LambdaEvent | ApiGatewayEvent): Promise<Lam
     if (stationIdMatch) {
       const stationId = stationIdMatch[1];
       const days = parseInt(queryStringParameters?.days || '7', 10);
-      response = await getStationDataHandler(stationId, days);
+      const until = queryStringParameters?.until;
+      response = await getStationDataHandler(stationId, days, until, path);
     } else {
       response = {
         statusCode: 404,
@@ -85,9 +86,29 @@ async function getStationsHandler(): Promise<LambdaResponse> {
   }
 }
 
-async function getStationDataHandler(stationId: string, days: number): Promise<LambdaResponse> {
+async function getStationDataHandler(
+  stationId: string,
+  days: number,
+  untilParam: string | undefined,
+  currentPath: string
+): Promise<LambdaResponse> {
   try {
-    const items = await queryStationData(stationId, days);
+    const until = untilParam || getYesterdayDate();
+
+    if (!untilParam) {
+      const redirectUrl = `${currentPath}?days=${days}&until=${until}`;
+      return {
+        statusCode: 307,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=60',
+          'Location': redirectUrl,
+        },
+        body: JSON.stringify({ redirect: redirectUrl }),
+      };
+    }
+
+    const items = await queryStationData(stationId, days, until);
 
     if (items.length === 0) {
       return {
@@ -111,6 +132,8 @@ async function getStationDataHandler(stationId: string, days: number): Promise<L
       stationName: firstItem.stationName,
       territory: firstItem.territory,
       territoryName: firstItem.territoryName,
+      days,
+      until,
       data,
     };
 
@@ -118,7 +141,7 @@ async function getStationDataHandler(stationId: string, days: number): Promise<L
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=7200',
+        'Cache-Control': 'public, max-age=31536000, immutable',
       },
       body: JSON.stringify(response),
     };

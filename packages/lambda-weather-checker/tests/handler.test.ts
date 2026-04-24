@@ -1,7 +1,8 @@
 jest.mock('../src/dynamodb/client');
 jest.mock('../src/ses/client');
 
-import { handler, getYesterdayDate } from '../src/handler';
+import { handler } from '../src/handler';
+import { getYesterdayDate } from '@weather-history/shared-types';
 import { checkRecordExists } from '../src/dynamodb/client';
 import { sendMissingDataEmail } from '../src/ses/client';
 
@@ -79,8 +80,8 @@ describe('Weather Checker Lambda - Handler', () => {
   describe('getYesterdayDate', () => {
     it('should return yesterday date in YYYY-MM-DD format', () => {
       const result = getYesterdayDate();
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
+      const now = new Date();
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
       const expected = yesterday.toISOString().split('T')[0];
 
       expect(result).toBe(expected);

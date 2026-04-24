@@ -1,4 +1,5 @@
-import { handler, getYesterdayDate, getDateFromString } from '../src/handler';
+import { handler, getDateFromString } from '../src/handler';
+import { getYesterdayDate } from '@weather-history/shared-types';
 import * as httpClient from '../src/httpClient';
 import * as parser from '../src/parser/htmlParser';
 
@@ -134,8 +135,8 @@ describe('Weather Extractor Lambda - Handler', () => {
   describe('getYesterdayDate', () => {
     it('should return yesterday date in YYYY-MM-DD format', () => {
       const result = getYesterdayDate();
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
+      const now = new Date();
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
       const expected = yesterday.toISOString().split('T')[0];
 
       expect(result).toBe(expected);

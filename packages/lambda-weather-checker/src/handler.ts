@@ -1,14 +1,9 @@
+import { getYesterdayDate } from '@weather-history/shared-types';
 import { checkRecordExists } from './dynamodb/client';
 import { sendMissingDataEmail } from './ses/client';
 
 export interface CheckerEvent {
   stationIds: string[];
-}
-
-export function getYesterdayDate(): string {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
 }
 
 export const handler = async (event: CheckerEvent): Promise<void> => {

@@ -54,17 +54,17 @@ export async function scanAllStations(): Promise<StationInfo[]> {
 
 export async function queryStationData(
   stationId: string,
-  days: number
+  days: number,
+  until: string
 ): Promise<WeatherRecord[]> {
   const client = createClient();
 
-  const endDate = new Date();
-  endDate.setDate(endDate.getDate() - 1);
+  const endDateStr = until;
+  const endDate = new Date(until);
   const startDate = new Date(endDate);
   startDate.setDate(startDate.getDate() - (days - 1));
 
   const startDateStr = startDate.toISOString().split('T')[0];
-  const endDateStr = endDate.toISOString().split('T')[0];
 
   const items: Record<string, any>[] = [];
   let lastKey: Record<string, any> | undefined;

@@ -124,6 +124,7 @@ The project uses a shared DynamoDB client. Depending on where you're running:
 ### Shared Packages
 
 - `@weather-history/shared-dynamodb-client` - Shared DynamoDB client used by all Lambdas and scripts
+- `@weather-history/shared-types` - Shared types and utilities (including `getYesterdayDate()` with Spain timezone)
 
 ## Development
 
@@ -370,14 +371,26 @@ Note: This GSI is currently used for backend queries. A future GSI (`station-dat
 
 ## API Reference
 
-The weather API is a Lambda function that serves weather data to the frontend. It's accessible via a Lambda Function URL.
+The weather API is a Lambda function served via CloudFront. It supports immutable caching with the `until` parameter.
 
 ### Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/stations` | Returns list of all available stations |
-| GET | `/stations/{stationId}?days=7` | Returns weather data for a specific station (last N days) |
+| GET | `/stations/{stationId}?days=7&until=YYYY-MM-DD` | Returns weather data for a specific station |
+
+### Parameters
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `days` | No | Number of days (default: 7) |
+| `until` | No | End date in YYYY-MM-DD format (default: yesterday, Spain timezone). When provided, response is cached for 1 year (immutable). |
+
+### Caching
+
+- **With `until`**: Cache-Control: `public, max-age=31536000, immutable` (1 year cache)
+- **Without `until`**: Cache-Control: `public, s-maxage=60` + 307 redirect to same URL with `until`
 
 ### Response Formats
 
@@ -391,16 +404,18 @@ The weather API is a Lambda function that serves weather data to the frontend. I
 }
 ```
 
-**GET /stations/{stationId}?days=7**
+**GET /stations/{stationId}?days=7&until=2026-04-23**
 ```json
 {
   "stationId": "c20m236e01",
   "stationName": "Sumacàrcer",
   "territory": "c20",
   "territoryName": "Ribera Alta",
+  "days": 7,
+  "until": "2026-04-23",
   "data": [
-    { "date": "2026-04-16", "tempMax": 27.2, "tempMin": 12.2, "tempAvg": 19.4, "precipitation": 0 },
-    { "date": "2026-04-15", "tempMax": 29.2, "tempMin": 11.2, "tempAvg": 19.1, "precipitation": 0 }
+    { "date": "2026-04-23", "tempMax": 27.2, "tempMin": 12.2, "tempAvg": 19.4, "precipitation": 0 },
+    { "date": "2026-04-22", "tempMax": 29.2, "tempMin": 11.2, "tempAvg": 19.1, "precipitation": 0 }
   ]
 }
 ```
