@@ -12,7 +12,8 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",
     "@aws-sdk/client-ses": "^3.0.0",
-    "@weather-history/shared-dynamodb-client": "*"
+    "@weather-history/shared-dynamodb-client": "*",
+    "@weather-history/shared-types": "*"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.0",
