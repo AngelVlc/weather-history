@@ -32,6 +32,8 @@ export interface StationResponse {
   stationName: string;
   territory: string;
   territoryName: string;
+  days: number;
+  until: string;
   data: StationData[];
 }
 
