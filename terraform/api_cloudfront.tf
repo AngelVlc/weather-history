@@ -1,12 +1,10 @@
 # CloudFront distribution for API with query string caching
-# Consultar la Lambda URL existente para obtener su dominio
 data "aws_lambda_function_url" "lambda_api" {
   function_name = var.lambda_api_function_name
 }
 
 resource "aws_cloudfront_distribution" "api" {
   origin {
-    # Extraer dominio del Lambda Function URL (sin https:// y sin trailing /)
     domain_name = trimsuffix(replace(data.aws_lambda_function_url.lambda_api.function_url, "https://", ""), "/")
     origin_id   = "lambda-api-origin"
 
@@ -22,18 +20,13 @@ resource "aws_cloudfront_distribution" "api" {
   is_ipv6_enabled     = true
 
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "lambda-api-origin"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
-
-    forwarded_values {
-      query_string = true
-      cookies {
-        forward = "none"
-      }
-    }
+    allowed_methods           = ["GET", "HEAD"]
+    cached_methods            = ["GET", "HEAD"]
+    target_origin_id          = "lambda-api-origin"
+    viewer_protocol_policy   = "redirect-to-https"
+    compress                = true
+    cache_policy_id         = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
   }
 
   price_class = "PriceClass_All"
