@@ -96,6 +96,19 @@ async function getStationDataHandler(
   try {
     const until = untilParam || getYesterdayDate();
 
+    if (!untilParam) {
+      const redirectUrl = `${currentPath}?days=${days}&until=${until}`;
+      return {
+        statusCode: 307,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=60',
+          'Location': redirectUrl,
+        },
+        body: JSON.stringify({ redirect: redirectUrl }),
+      };
+    }
+
     const items = await queryStationData(stationId, days, until);
 
     if (items.length === 0) {
@@ -124,19 +137,6 @@ async function getStationDataHandler(
       until,
       data,
     };
-
-    if (!untilParam) {
-      const redirectUrl = `${currentPath}?days=${days}&until=${until}`;
-      return {
-        statusCode: 307,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, s-maxage=60',
-          'Location': redirectUrl,
-        },
-        body: JSON.stringify(response),
-      };
-    }
 
     return {
       statusCode: 200,
