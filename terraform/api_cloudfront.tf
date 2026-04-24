@@ -3,7 +3,7 @@ resource "aws_cloudfront_distribution" "api" {
   depends_on = [aws_lambda_function_url.lambda_api]
 
   origin {
-    domain_name = "${aws_lambda_function.lambda_api.function_name}.lambda.${var.aws_region}.amazonaws.com"
+    domain_name = replace(aws_lambda_function_url.lambda_api.function_url, "https://", "")
     origin_id   = "lambda-api-origin"
 
     custom_origin_config {
