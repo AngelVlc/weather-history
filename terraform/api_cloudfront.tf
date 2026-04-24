@@ -4,13 +4,22 @@ data "aws_lambda_function_url" "lambda_api" {
 }
 
 resource "aws_cloudfront_cache_policy" "api" {
-  name       = "weather-api-cache-policy"
-  description = "Cache policy for weather API that includes days and until query strings"
-  
-  parameters_config {
-    query_string_cache_keys = ["days", "until"]
-    cookies_config = "none"
-    headers_config = "none"
+  name    = "weather-api-cache-policy"
+  comment = "Cache policy for weather API that includes days and until query strings"
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config {
+      cookie_behavior = "none"
+    }
+    headers_config {
+      header_behavior = "none"
+    }
+    query_strings_config {
+      query_string_behavior = "whitelist"
+      query_strings {
+        items = ["days", "until"]
+      }
+    }
   }
 }
 
