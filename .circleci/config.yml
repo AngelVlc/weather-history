@@ -20,11 +20,15 @@ jobs:
             yarn workspace @weather-history/shared-types build
             yarn workspace @weather-history/shared-dynamodb-client build
       - run:
-          name: Run tests
+          name: Run Lambda tests
           command: |
             yarn workspace @weather-history/lambda-weather-extractor test
             yarn workspace @weather-history/lambda-weather-api test
             yarn workspace @weather-history/lambda-weather-checker test
+      - run:
+          name: Run UI tests
+          command: |
+            yarn workspace @weather-history/weather-ui test
 
   deploy-terraform-infra:
     docker:
