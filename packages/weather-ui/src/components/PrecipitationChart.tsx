@@ -21,14 +21,10 @@ ChartJS.register(
 
 const STATION_COLORS = [
   {
-    max: { border: 'rgb(239, 68, 68)', bg: 'rgba(239, 68, 68, 0.8)' },
-    avg: { border: 'rgb(234, 179, 8)', bg: 'rgba(234, 179, 8, 0.8)' },
-    min: { border: 'rgb(59, 130, 246)', bg: 'rgba(59, 130, 246, 0.8)' },
+    precipitation: { border: 'rgb(59, 130, 246)', bg: 'rgba(59, 130, 246, 0.8)' },
   },
   {
-    max: { border: 'rgb(239, 68, 68)', bg: 'rgba(239, 68, 68, 0.8)' },
-    avg: { border: 'rgb(234, 179, 8)', bg: 'rgba(234, 179, 8, 0.8)' },
-    min: { border: 'rgb(59, 130, 246)', bg: 'rgba(59, 130, 246, 0.8)' },
+    precipitation: { border: 'rgb(34, 197, 95)', bg: 'rgba(34, 197, 95, 0.8)' },
   },
 ];
 
@@ -47,8 +43,8 @@ export function PrecipitationChart({ datasets }: PrecipitationChartProps) {
     return {
       label: dataset.stationName,
       data: stationData.map(d => d.precipitation),
-      backgroundColor: STATION_COLORS[stationIndex].max.bg,
-      borderColor: STATION_COLORS[stationIndex].max.border,
+      backgroundColor: STATION_COLORS[stationIndex].precipitation.bg,
+      borderColor: STATION_COLORS[stationIndex].precipitation.border,
       borderWidth: 1,
       borderDash: isCompare ? [8, 4] : undefined,
     };
