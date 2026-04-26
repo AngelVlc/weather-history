@@ -271,6 +271,22 @@ DYNAMODB_TABLE_NAME=weather-data yarn query --order asc
 # Raw DynamoDB output (for debugging)
 AWS_PROFILE=personal \
 DYNAMODB_TABLE_NAME=weather-data yarn query --raw
+
+# Show missing dates in date range
+AWS_PROFILE=personal \
+DYNAMODB_TABLE_NAME=weather-data yarn query \
+  --stations c20m236e01 \
+  --start-date 2026-01-01 \
+  --end-date 2026-01-07 \
+  --missing
+
+# Output example:
+# 2026-01-03
+# 2026-01-05
+#
+# Commands to populate missing dates:
+# yarn populate --start-date 2026-01-03 --end-date 2026-01-03 --stations c20m236e01
+# yarn populate --start-date 2026-01-05 --end-date 2026-01-05 --stations c20m236e01
 ```
 
 ### Options
@@ -283,6 +299,7 @@ DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 | `--end-date` | Filter by end date (YYYY-MM-DD) | - |
 | `--order` | Sort order (`asc` or `desc`) | desc |
 | `--raw` | Show raw DynamoDB items | false |
+| `--missing` | Show missing dates in range | false |
 
 **Controls:**
 - Press Enter to see next page

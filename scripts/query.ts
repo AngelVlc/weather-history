@@ -11,6 +11,7 @@ interface Args {
   stations?: string;
   order?: 'asc' | 'desc';
   raw?: boolean;
+  missing?: boolean;
   help: boolean;
 }
 
@@ -33,6 +34,8 @@ async function fetchAllData(
   let lastKey: Record<string, any> | undefined;
   const items: any[] = [];
 
+  const territory = stations && stations[0] ? stations[0].substring(0, 3) : null;
+
   do {
     const params: any = {
       TableName: TABLE_NAME,
@@ -49,13 +52,13 @@ async function fetchAllData(
         values[`:station${i}`] = { S: station };
       });
     }
-    if (startDate) {
+    if (territory && startDate) {
       filters.push('pk >= :startPk');
-      values[':startPk'] = { S: `c20#${startDate}` };
+      values[':startPk'] = { S: `${territory}#${startDate}` };
     }
-    if (endDate) {
+    if (territory && endDate) {
       filters.push('pk <= :endPk');
-      values[':endPk'] = { S: `c20#${endDate}` };
+      values[':endPk'] = { S: `${territory}#${endDate}` };
     }
 
     if (filters.length > 0) {
@@ -145,6 +148,29 @@ async function query(
   return { hasMore: false };
 }
 
+function getDatesInRange(startDate: string, endDate: string): string[] {
+  const dates: string[] = [];
+  const current = new Date(startDate);
+  const end = new Date(endDate);
+
+  while (current <= end) {
+    const year = current.getFullYear();
+    const month = String(current.getMonth() + 1).padStart(2, '0');
+    const day = String(current.getDate()).padStart(2, '0');
+    dates.push(`${year}-${month}-${day}`);
+    current.setDate(current.getDate() + 1);
+  }
+
+  return dates;
+}
+
+function getMissingDates(
+  allDatesInRange: string[],
+  dbDates: Set<string>
+): string[] {
+  return allDatesInRange.filter(date => !dbDates.has(date));
+}
+
 async function main() {
   const argv = require('yargs')
     .option('page-size', {
@@ -175,16 +201,57 @@ async function main() {
       type: 'boolean',
       default: false,
     })
+    .option('missing', {
+      describe: 'Show missing dates in range (requires --start-date, --end-date and --stations)',
+      type: 'boolean',
+      default: false,
+    })
     .help()
     .alias('h', 'help')
     .parseSync() as Args;
 
   client = createClient();
 
+  const stations = argv.stations ? argv.stations.split(',').map(s => s.trim()) : undefined;
+
+  if (argv.missing) {
+    if (!argv['start-date'] || !argv['end-date']) {
+      console.error('Error: --missing requires --start-date and --end-date');
+      process.exit(1);
+    }
+    if (!stations || stations.length === 0) {
+      console.error('Error: --missing requires --stations');
+      process.exit(1);
+    }
+
+    console.log('\nFetching existing dates...');
+    await fetchAllData(stations, argv['start-date'], argv['end-date'], 'asc');
+
+    const datesInRange = getDatesInRange(argv['start-date'], argv['end-date']);
+    const existingDates = new Set(allItems.map(item => item.date?.S));
+    const missing = getMissingDates(datesInRange, existingDates);
+
+    console.log('\n--- Missing dates ---\n');
+    for (const date of missing) {
+      console.log(date);
+    }
+    console.log(`\nTotal: ${missing.length} of ${datesInRange.length} dates missing`);
+
+    console.log('\n--- Commands to populate missing dates ---\n');
+    for (const station of stations) {
+      for (const date of missing) {
+        console.log(`yarn populate --start-date ${date} --end-date ${date} --stations ${station}`);
+      }
+    }
+
+    rl.close();
+    console.log('Query completed.');
+    return;
+  }
+
   console.log('DynamoDB Endpoint:', process.env.DYNAMODB_ENDPOINT || 'AWS (production)');
   console.log('DynamoDB Table:', TABLE_NAME);
   console.log(`Page size: ${argv['page-size']}`);
-  const stations = argv.stations ? argv.stations.split(',').map(s => s.trim()) : undefined;
   if (stations) console.log(`Stations: ${stations.join(', ')}`);
   if (argv['start-date']) console.log(`Start Date: ${argv['start-date']}`);
   if (argv['end-date']) console.log(`End Date: ${argv['end-date']}`);
