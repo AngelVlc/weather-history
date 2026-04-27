@@ -10,7 +10,7 @@ territories:
   - id: c15
     name: Valencia
     location: Valencia
-    cronHour: 1
+    cronHour: 4
     timezone: Europe/Madrid
     stationIds:
       - c15m250e34
