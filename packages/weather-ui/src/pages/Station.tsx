@@ -66,10 +66,31 @@ export function Station() {
     }
   };
 
+  const alignedData = useMemo(() => {
+    if (!data) return [];
+    if (!compareData) return [data];
+
+    // Get common dates between both stations
+    const dates1 = new Set(data.data.map(d => d.date));
+    const commonDates = compareData.data
+      .filter(d => dates1.has(d.date))
+      .map(d => d.date);
+
+    // Align both datasets to show only common dates
+    const align = (stationData: StationResponse) => ({
+      ...stationData,
+      data: commonDates
+        .map(date => stationData.data.find(d => d.date === date)!)
+        .filter(Boolean)
+    });
+
+    return [align(data), align(compareData)];
+  }, [data, compareData]);
+
   const allData = useMemo(() => {
     if (!data) return [];
     if (!compareData) return [data];
-    return [data, compareData];
+    return alignedData;
   }, [data, compareData]);
 
   if (loading) {
