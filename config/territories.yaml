@@ -7,6 +7,13 @@ territories:
     stationIds:
       - c20m236e01
       - c20m236e02
+  - id: c16
+    name: L'Horta Sud
+    location: Alcacer
+    cronHour: 3
+    timezone: Europe/Madrid
+    stationIds:
+      - c16m015e01
   - id: c15
     name: Valencia
     location: Valencia
