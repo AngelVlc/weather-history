@@ -250,7 +250,7 @@ DYNAMODB_TABLE_NAME=weather-data \
 yarn query
 
 # Production (with AWS profile)
-AWS_PROFILE=personal \
+AWS_PROFILE=xxxxx \
 DYNAMODB_TABLE_NAME=weather-data \
 yarn query
 
@@ -258,22 +258,22 @@ yarn query
 DYNAMODB_TABLE_NAME=weather-data yarn query --page-size 5
 
 # Filter by stations and date range
-AWS_PROFILE=personal \
+AWS_PROFILE=xxxxx \
 DYNAMODB_TABLE_NAME=weather-data yarn query \
   --stations c20m236e01,c20m236e02 \
   --start-date 2026-04-01 \
   --end-date 2026-04-15
 
 # Ascending order (oldest first)
-AWS_PROFILE=personal \
+AWS_PROFILE=xxxxx \
 DYNAMODB_TABLE_NAME=weather-data yarn query --order asc
 
 # Raw DynamoDB output (for debugging)
-AWS_PROFILE=personal \
+AWS_PROFILE=xxxxx \
 DYNAMODB_TABLE_NAME=weather-data yarn query --raw
 
 # Show missing dates in date range
-AWS_PROFILE=personal \
+AWS_PROFILE=xxxxx \
 DYNAMODB_TABLE_NAME=weather-data yarn query \
   --stations c20m236e01 \
   --start-date 2026-01-01 \
