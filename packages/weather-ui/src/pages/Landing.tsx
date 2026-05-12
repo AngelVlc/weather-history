@@ -48,6 +48,17 @@ export function Landing() {
             />
           ))}
         </div>
+      <footer className="mt-8 text-center text-sm text-gray-600">
+          Datos proporcionados por{' '}
+          <a
+            href="https://www.avamet.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            AVAMET
+          </a>
+        </footer>
       </main>
     </div>
   );
