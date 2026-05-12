@@ -28,4 +28,6 @@ territories:
     timezone: Europe/Madrid
     stationIds:
       - c21m235e02
+      - c21m105e06
+      - c21m105e03
 
