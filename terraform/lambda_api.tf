@@ -75,7 +75,7 @@ resource "aws_lambda_function" "lambda_api" {
   s3_bucket        = aws_s3_bucket.lambda_code.id
   s3_key           = "lambda-weather-api.zip"
   handler          = "dist/index.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs24.x"
   timeout          = 30
   memory_size      = 256
   source_code_hash = data.aws_s3_object.lambda_api_zip.etag
