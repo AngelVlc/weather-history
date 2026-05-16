@@ -75,7 +75,7 @@ resource "aws_lambda_function" "weather_checker" {
   s3_bucket        = aws_s3_bucket.lambda_code.id
   s3_key           = "lambda-checker.zip"
   handler          = "dist/handler.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs24.x"
   timeout          = 30
   memory_size      = 128
   source_code_hash = data.aws_s3_object.lambda_checker_zip.etag

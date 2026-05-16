@@ -102,7 +102,7 @@ weather-history/
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - Yarn
 - Docker
 - AWS CLI
